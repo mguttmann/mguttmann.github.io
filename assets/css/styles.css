@@ -21,24 +21,24 @@
 
 :root {
   /* --- GitHub light canvas + inks (from template site.css) --- */
-  --canvas: #ffffff;
-  --inset: #f6f8fa;
-  --ink: #1f2328;
-  --muted: #59636e;
-  --line: #d1d9e0;
-  --line-soft: #eaeef2;
+  --canvas: #0e0e13;
+  --inset: #14141b;
+  --ink: #ece7df;
+  --muted: #9a958a;
+  --line: #2a2a33;
+  --line-soft: #1e1e26;
 
   /* --- Monochrome accent (owner final: "schwarz ohne blau") --- */
-  --accent: #1f2328;
-  --accent-dim: #000000;
-  --accent-bright: #424a53;
-  --orange: #fd7e14;            /* GitHub-signature tab underline (kept) */
+  --accent: #c8a06a;
+  --accent-dim: #8a6d45;
+  --accent-bright: #d9b583;
+  --orange: #c8a06a;            /* GitHub-signature tab underline (kept) */
 
   /* --- dark app header (authentic GitHub) --- */
-  --header: #1f2328;
-  --header-line: #3d444d;
-  --header-ink: #f0f6fc;
-  --header-muted: #9198a1;
+  --header: #14141b;
+  --header-line: #2a2a33;
+  --header-ink: #ece7df;
+  --header-muted: #9a958a;
 
   /* --- type --- */
   --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
