@@ -1,0 +1,15 @@
+# --- Non-public source/work directories (NEVER deploy) ---
+_design-bundle/
+_pre-relaunch-backup-*/
+preview/
+.review/
+
+# --- Internal docs (NEVER deploy) ---
+DEPLOY.md
+CONTENT.md
+README.md
+
+# --- Scan / report artifacts ---
+*REPORT*.md
+*report*.json
+gitleaks-*.json

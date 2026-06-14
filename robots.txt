@@ -1,0 +1,6 @@
+# robots.txt for Manuel Guttmann portfolio
+# TODO[owner]: confirm final canonical domain before public launch (placeholder below).
+User-agent: *
+Allow: /
+
+Sitemap: https://mguttmann.github.io/sitemap.xml

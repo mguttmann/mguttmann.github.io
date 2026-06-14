@@ -1,0 +1,25 @@
+<!-- OG-image rendered as SVG (1200x630), Executive Dark Luxury palette. TODO[owner]: optionally replace with a real raster og-image.png (1200x630). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Manuel Guttmann - Microsoft Cloud, Security and Automation">
+  <defs>
+    <radialGradient id="ogGlow" cx="16%" cy="14%" r="70%">
+      <stop offset="0%" stop-color="#C8A06A" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#C8A06A" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#0E0E13"/>
+  <rect width="1200" height="630" fill="url(#ogGlow)"/>
+  <!-- monogram seal -->
+  <g transform="translate(96,118)">
+    <circle cx="44" cy="44" r="42" fill="none" stroke="#C8A06A" stroke-width="2"/>
+    <text x="44" y="58" font-family="Georgia, 'Times New Roman', serif"
+          font-size="40" font-weight="500" text-anchor="middle" fill="#C8A06A">MG</text>
+  </g>
+  <text x="96" y="372" font-family="Georgia, 'Times New Roman', serif"
+        font-size="92" font-weight="400" fill="#ECE7DF">Manuel Guttmann</text>
+  <!-- copper hairline -->
+  <rect x="98" y="408" width="380" height="2" fill="#C8A06A"/>
+  <text x="98" y="466" font-family="Georgia, 'Times New Roman', serif"
+        font-size="34" font-style="italic" font-weight="400" fill="#D9B583">Microsoft Cloud &#183; Security &#183; Automation</text>
+  <text x="98" y="520" font-family="ui-monospace, 'JetBrains Mono', monospace"
+        font-size="24" font-weight="400" fill="#8B8579">github.com/mguttmann</text>
+</svg>
