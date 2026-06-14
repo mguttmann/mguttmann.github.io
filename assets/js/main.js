@@ -36,11 +36,18 @@
      -----------------------------------------------------------------------
      BRAND-SAFETY (hard rule): only PUBLIC, presentable repos belong here.
      NEVER add private / internal / journaway / archive / backup repos.
-     The 8 entries below are the curated public-repo whitelist. opencode is
-     a contribution/fork (labelled via `note`); neon-serpent and hellbreak
-     keep curated placeholder one-liners until their repo descriptions exist.
-     `stars`/`forks`/`updated` are illustrative GitHub-style metadata - they
-     are cosmetic and carry no claim; remove them if undesired.
+
+     LIVE-FIX 2026-06: six repos that used to live here were verified PRIVATE
+     via `gh repo view --json visibility` (the four MCP-server repos plus two
+     browser-game repos). Private repos give visitors a 404 on every link, so
+     they were removed. Only confirmed-PUBLIC repos remain:
+       - claude-team-hierarchy : real original (isFork=false), pinned.
+       - opencode              : PUBLIC but isFork=true -> kept ONLY in the
+                                 Repositories list, honestly flagged as a Fork
+                                 (fork:true + note), NEVER pinned and never
+                                 passed off as an own original.
+     mguttmann / mguttmann.github.io are the profile/site repos themselves and
+     are deliberately NOT listed as showcase project cards.
      ====================================================================== */
   var projects = [
     {
@@ -50,57 +57,6 @@
       topics: ["claude-code", "ai-agents", "orchestration", "developer-tooling", "automation"],
       url: "https://github.com/mguttmann/claude-team-hierarchy",
       pinned: true
-    },
-    {
-      name: "the-real-unifi-mcp",
-      language: "TypeScript",
-      desc: "An MCP server giving AI assistants full, typed access to the UniFi Site Manager and Network APIs - 100% endpoint coverage over a clean stdio transport.",
-      topics: ["mcp", "unifi", "typescript", "api-integration", "network-automation"],
-      url: "https://github.com/mguttmann/the-real-unifi-mcp",
-      pinned: true
-    },
-    {
-      name: "the-real-hetzner-mcp",
-      language: "TypeScript",
-      desc: "A local stdio MCP server exposing the entire Hetzner Cloud API as 201 typed tools - read and write.",
-      topics: ["mcp", "hetzner", "cloud", "typescript", "infrastructure-automation"],
-      url: "https://github.com/mguttmann/the-real-hetzner-mcp",
-      pinned: true
-    },
-    {
-      name: "the-real-bitwarden-mcp",
-      language: "TypeScript",
-      desc: "A local stdio MCP server for Bitwarden (Public API + Secrets Manager) with 50+ admin tools: members, groups, collections, policies, licensing and secrets.",
-      topics: ["mcp", "bitwarden", "secrets-management", "typescript", "security"],
-      url: "https://github.com/mguttmann/the-real-bitwarden-mcp",
-      pinned: true
-    },
-    {
-      name: "the-real-snipeit-mcp",
-      language: "TypeScript",
-      desc: "An MCP server for the Snipe-IT asset-management REST API with full coverage (hand-wrappers + codegen).",
-      topics: ["mcp", "snipe-it", "asset-management", "typescript", "api-integration"],
-      url: "https://github.com/mguttmann/the-real-snipeit-mcp",
-      pinned: true
-    },
-    {
-      name: "neon-serpent",
-      language: "TypeScript",
-      // Curated one-liner from CONTENT.md section 5 (repo has no own description yet).
-      // TODO[owner]: confirm/expand once the repo description is set.
-      desc: "A fast, modern take on the classic snake game, built for the browser.",
-      topics: ["game", "typescript", "browser-game", "canvas", "html5"],
-      url: "https://github.com/mguttmann/neon-serpent",
-      pinned: true
-    },
-    {
-      name: "hellbreak",
-      language: "TypeScript",
-      // Curated one-liner from CONTENT.md section 5 (repo has no own description yet).
-      // TODO[owner]: confirm/expand once the repo description is set.
-      desc: "A browser-based arcade game built in TypeScript.",
-      topics: ["game", "typescript", "browser-game", "arcade", "html5"],
-      url: "https://github.com/mguttmann/hellbreak"
     },
     {
       name: "opencode",
@@ -153,9 +109,8 @@
       "readme.hi": "Hi, ich bin Manuel",
       "readme.typed": "$ Sysadmin tagsüber, Automatisierer immer. Ich verwandle wiederkehrende Aufgaben in Code — Claude-Skills, Plugins, Runbooks und AI-Agents, die du direkt einsetzen kannst. Hier teile ich alles als Open Source.",
       "counters.years": "Jahre IT",
-      "counters.repos": "Public Repos",
-      "counters.mcp": "MCP-Server & Plugins",
       "overview.pinned": "Pinned",
+      "overview.morepublic": "Weitere öffentliche Projekte folgen.",
       "overview.contrib": "Contribution-Graph",
       "overview.contrib.note": "// täglich aktualisiert",
       "overview.contrib.fallback": "Der Contribution-Graph erscheint nach dem ersten täglichen Lauf des Profil-Workflows.",
@@ -192,9 +147,8 @@
       "readme.hi": "Hi, I'm Manuel",
       "readme.typed": "$ Sysadmin by day, automator always. I turn recurring tasks into code — Claude skills, plugins, runbooks and AI agents you can use right away. I share it all as open source.",
       "counters.years": "Years in IT",
-      "counters.repos": "Public repos",
-      "counters.mcp": "MCP servers & plugins",
       "overview.pinned": "Pinned",
+      "overview.morepublic": "More public projects coming soon.",
       "overview.contrib": "Contribution graph",
       "overview.contrib.note": "// auto-updated daily",
       "overview.contrib.fallback": "Contribution graph populates after the first daily run of the profile workflow.",
@@ -361,6 +315,32 @@
 
     grid.textContent = "";
     grid.appendChild(frag);
+
+    /* Honest > broken: when the public-repo whitelist is small (<=2 pins) the
+       grid alone could read as "thin / unfinished". Render a dezent, truthful
+       note + a prominent GitHub link RIGHT AFTER the grid so the section reads
+       as deliberate. No fabricated projects. The note element is owned markup
+       (not data); only the i18n string is text, set via textContent. It is
+       rebuilt on every render (incl. language switch) and removed once more
+       public projects push the pin count above 2. */
+    var existingNote = grid.parentNode && grid.parentNode.querySelector(".pin-thin");
+    if (existingNote) existingNote.parentNode.removeChild(existingNote);
+
+    if (pins.length <= 2 && grid.parentNode) {
+      var note = el("p", "pin-thin mono");
+      var span = el("span", null, getString("overview.morepublic") || "More public projects coming soon.");
+      span.setAttribute("data-i18n", "overview.morepublic");
+      note.appendChild(span);
+      note.appendChild(document.createTextNode("  "));
+      var link = el("a", null, getString("repos.all") || "See all repositories on GitHub");
+      link.setAttribute("href", "https://github.com/mguttmann?tab=repositories");
+      link.setAttribute("target", "_blank");
+      link.setAttribute("rel", "noopener noreferrer");
+      link.setAttribute("data-i18n", "repos.all");
+      note.appendChild(link);
+      note.appendChild(document.createTextNode(" →"));
+      grid.parentNode.appendChild(note);
+    }
   }
 
   /* ----------------------------------------------------------------------

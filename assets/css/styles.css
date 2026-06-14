@@ -345,8 +345,17 @@ input:focus-visible,
 .stitle svg { width: 16px; height: 16px; fill: var(--muted); }
 .stitle .more { margin-left: auto; font-size: 12px; color: var(--muted); font-weight: 400; font-family: var(--mono); }
 
-/* pinned */
-.pingrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+/* pinned
+   auto-fit keeps the grid honest when the public-repo whitelist is small:
+   one card -> one column (no empty trailing cell), two cards -> two columns.
+   minmax(0,480px) caps a lone card so it never stretches awkwardly wide, and
+   justify-content:start keeps it left-aligned with the section above. */
+.pingrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 480px));
+  justify-content: start;
+  gap: 16px;
+}
 @media (max-width: 680px) { .pingrid { grid-template-columns: 1fr; } }
 .pin { border: 1px solid var(--line); border-radius: 8px; padding: 16px; transition: .2s; background: var(--canvas); }
 .pin:hover { border-color: var(--accent); box-shadow: 0 12px 26px -16px rgba(0,0,0,.4); transform: translateY(-3px); }
@@ -362,6 +371,10 @@ input:focus-visible,
   font-size: 11px; color: var(--muted); font-family: var(--mono);
   margin: -8px 0 12px; font-style: italic;
 }
+/* dezent honest note shown under a small pinned grid (few public repos). */
+.pin-thin { margin-top: 14px; font-size: 12px; color: var(--muted); }
+.pin-thin a { color: var(--muted); }
+.pin-thin a:hover { color: var(--accent); }
 .pin-meta { display: flex; align-items: center; gap: 16px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
 .pin-meta .lang { display: flex; align-items: center; gap: 5px; }
 .pin-meta .lang i { width: 11px; height: 11px; border-radius: 50%; display: block; }
@@ -374,17 +387,28 @@ input:focus-visible,
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
   border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-bottom: 8px;
 }
-/* Two-column variant (kept for reference): used when only two verifiable
-   counters remained. */
+/* Single-counter variant: ACTIVE layout. Only ONE publicly-verifiable counter
+   remains ("24 years in IT") after the misleading "Public repos" counter was
+   removed (and earlier the unprovable "MCP servers & plugins" one). Rendered as
+   one centred key figure with a sensible max-width so it reads as an intentional
+   stat, not a lone cell stretched across a broken row. */
+.counters--1 {
+  grid-template-columns: minmax(180px, 320px);
+  justify-content: center;
+}
+.counters--1 .cbox { border-right: none; }
+/* Two-column variant: kept for reference only (no element uses it now). */
 .counters--2 { grid-template-columns: repeat(2, 1fr); }
-/* Three-column variant: three real counters (24 yrs in IT, 8 repos, 5 MCP),
-   no empty cell. Kept at three columns on mobile too: the three short numbers
-   fit, and it avoids a 2+1 layout that would orphan a cell / a stray border. */
+/* Three-column variant: kept for reference only (no element uses it now).
+   It stays 3-up on mobile to avoid orphaning a cell into a half-empty row. */
 .counters--3 { grid-template-columns: repeat(3, 1fr); }
 @media (max-width: 680px) {
   /* generic 4-col counters fall back to two columns on small screens... */
   .counters { grid-template-columns: repeat(2, 1fr); }
-  /* ...but the 3-counter row stays 3-up (declared AFTER, so it wins) so it
+  /* ...but the single-counter row stays ONE centred column (declared AFTER the
+     generic rule, so it wins) and never orphans into an empty second cell. */
+  .counters--1 { grid-template-columns: minmax(180px, 320px); justify-content: center; }
+  /* ...and the 3-counter row stays 3-up (declared AFTER, so it wins) so it
      never orphans the third cell into a half-empty second row. */
   .counters--3 { grid-template-columns: repeat(3, 1fr); }
   .counters--3 .cbox { padding: 16px 6px; }
