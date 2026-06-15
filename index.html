@@ -225,6 +225,11 @@
         <article class="readme reveal">
           <div class="readme-bar"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M0 1.75A.75.75 0 0 1 .75 1h4.253c1.227 0 2.317.59 3 1.501A3.743 3.743 0 0 1 11.006 1h4.245a.75.75 0 0 1 .75.75v10.5a.75.75 0 0 1-.75.75h-4.507a2.25 2.25 0 0 0-1.591.659l-.622.621a.75.75 0 0 1-1.06 0l-.622-.621A2.25 2.25 0 0 0 5.258 13H.75a.75.75 0 0 1-.75-.75Zm7.251 10.324.004-5.073-.002-2.253A2.25 2.25 0 0 0 5.003 2.5H1.5v9h3.757a3.75 3.75 0 0 1 1.994.574ZM8.755 4.75l-.004 7.322a3.752 3.752 0 0 1 1.992-.572H14.5v-9h-3.495a2.25 2.25 0 0 0-2.25 2.25Z"/></svg>mguttmann / README.md<svg class="pin-ico" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M4 1.75C4 .784 4.784 0 5.75 0h5.5C12.216 0 13 .784 13 1.75v11.5a.75.75 0 0 1-1.218.586L8.5 11.21l-3.282 2.626A.75.75 0 0 1 4 13.25Z"/></svg></div>
           <div class="readme-body">
+            <!-- Bronze contribution snake as the card backdrop; content sits on top. -->
+            <img class="readme-snake" aria-hidden="true" alt="" loading="lazy"
+                 src="https://raw.githubusercontent.com/mguttmann/mguttmann/output/github-snake-bronze.svg"
+                 onerror="this.onerror=null;this.style.display='none';" />
+            <div class="readme-scrim" aria-hidden="true"></div>
             <h2><span data-i18n="readme.hi">Hi, I'm Manuel</span> <span class="wave" aria-hidden="true">&#128075;</span></h2>
             <p class="typ" id="typetarget" data-i18n-typed="readme.typed" data-text="$ Sysadmin by day, automator always. I turn recurring tasks into code — Claude skills, plugins, runbooks and AI agents you can use right away. I share it all as open source."></p>
             <div class="badges">
@@ -242,35 +247,6 @@
           <div class="pingrid" id="pingrid"></div>
         </div>
 
-        <!--
-          ====================================================================
-          CONTRIBUTION GRAPH - LIVE, auto-updated daily by the profile-repo
-          GitHub Action (mguttmann/mguttmann @ branch `output`). The site reads
-          the SAME canonical raw URLs as the README, so it updates WITHOUT a
-          site redeploy. Source of truth: profile-readme/STATS-ASSETS.md.
-
-          GRACEFUL FALLBACK: every embed has loading="lazy", a descriptive alt,
-          and an onerror handler that NULLS itself (no loop), hides the broken
-          image, and reveals a dezent placeholder. The raw URLs return 404 until
-          the Action's first run after deploy - that is EXPECTED, and the page
-          must still look intentional (placeholder visible), never broken.
-          ====================================================================
-        -->
-        <div class="reveal">
-          <div class="stitle"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M1.5 1.75V13.5h13.75a.75.75 0 0 1 0 1.5H.75a.75.75 0 0 1-.75-.75V1.75a.75.75 0 0 1 1.5 0Zm14.28 2.53-5.25 5.25a.75.75 0 0 1-1.06 0L7 7.06 4.28 9.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.25-3.25a.75.75 0 0 1 1.06 0L10 7.94l4.72-4.72a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042Z"/></svg><span data-i18n="overview.contrib">Contribution graph</span><span class="more mono" data-i18n="overview.contrib.note">// auto-updated daily</span></div>
-
-          <!-- Bronze contribution snake (copper cell levels + champagne snake), to match the theme. -->
-          <figure class="contrib contrib-snake">
-            <img class="live-img"
-                 src="https://raw.githubusercontent.com/mguttmann/mguttmann/output/github-snake-bronze.svg"
-                 alt="Manuel Guttmann's GitHub contribution graph, rendered as an animated bronze snake that eats the contribution cells - updated automatically every day."
-                 loading="lazy"
-                 onerror="this.onerror=null;this.style.display='none';var p=this.parentNode.querySelector('.live-fallback');if(p)p.hidden=false;" />
-            <figcaption class="live-fallback" hidden>
-              <span data-i18n="overview.contrib.fallback">Contribution graph populates after the first daily run of the profile workflow.</span>
-            </figcaption>
-          </figure>
-        </div>
 
         <!--
           ====================================================================

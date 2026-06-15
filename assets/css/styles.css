@@ -170,6 +170,20 @@ input:focus-visible,
 .avatar-sm:hover { transform: scale(1.08); }
 
 /* ===== layout ===== */
+/* Bronze contribution snake as the backdrop of the "Hi, I'm Manuel" README card. */
+.readme-body { position: relative; overflow: hidden; }
+.readme-snake {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: min(116%, 960px); max-width: none; height: auto;
+  opacity: .5; z-index: 0; pointer-events: none; user-select: none;
+}
+.readme-scrim {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: radial-gradient(125% 135% at 20% 50%, rgba(14,14,19,.92), rgba(14,14,19,.52) 56%, rgba(14,14,19,.12) 100%);
+}
+.readme-body > *:not(.readme-snake):not(.readme-scrim) { position: relative; z-index: 2; }
+@media (prefers-reduced-motion: reduce) { .readme-snake { opacity: .3; } }
+
 .page {
   max-width: 1280px; margin: 0 auto;
   padding: 24px 20px;
@@ -179,6 +193,7 @@ input:focus-visible,
 @media (max-width: 900px) { .page { grid-template-columns: 1fr; } }
 
 /* ===== sidebar ===== */
+@media (max-width: 860px) { .page { grid-template-columns: 1fr; } }
 .side { position: sticky; top: 84px; }
 @media (max-width: 900px) { .side { position: static; } }
 .avatar-ring {
@@ -352,8 +367,7 @@ input:focus-visible,
    justify-content:start keeps it left-aligned with the section above. */
 .pingrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 480px));
-  justify-content: start;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 16px;
 }
 @media (max-width: 680px) { .pingrid { grid-template-columns: 1fr; } }
