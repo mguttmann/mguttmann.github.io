@@ -111,6 +111,14 @@
 
     <!-- ============================== 1 + 2 + 3  HEADER ============================== -->
     <header class="hero reveal">
+      <!-- Animated bronze contribution snake as the hero backdrop (the SAME
+           Platane/snk output as the README's snake, recoloured to copper cell
+           levels in snake.yml). Decorative only; name/typing sit on top. -->
+      <img class="hero-snake" aria-hidden="true" alt="" loading="eager"
+           src="https://raw.githubusercontent.com/mguttmann/mguttmann/output/github-snake-bronze.svg"
+           onerror="this.onerror=null;this.style.display='none';" />
+      <div class="hero-scrim" aria-hidden="true"></div>
+
       <div class="seal" aria-hidden="true">MG</div>
       <h1 class="name">Manuel Guttmann</h1>
       <p class="tagline mono">Microsoft&nbsp;365 &middot; Azure &middot; Security &middot; Automation</p>
@@ -306,19 +314,6 @@
                loading="lazy"
                onerror="this.onerror=null;this.style.display='none';var p=this.closest('.act-fig').querySelector('.live-fallback');if(p)p.hidden=false;" />
           <figcaption class="live-fallback" hidden>The 3D contribution calendar populates after the first daily run of the profile workflow.</figcaption>
-        </figure>
-
-        <!-- Snake contribution animation (same output-branch URLs as the README) -->
-        <figure class="act-fig">
-          <picture>
-            <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/mguttmann/mguttmann/output/github-contribution-grid-snake.svg" />
-            <img class="live-img"
-                 src="https://raw.githubusercontent.com/mguttmann/mguttmann/output/github-contribution-grid-snake-dark.svg"
-                 alt="Manuel Guttmann's contribution graph as an animated snake eating the contribution cells - updated automatically every day."
-                 loading="lazy"
-                 onerror="this.onerror=null;this.style.display='none';var p=this.closest('.act-fig').querySelector('.live-fallback');if(p)p.hidden=false;" />
-          </picture>
-          <figcaption class="live-fallback" hidden>The contribution snake populates after the first daily run of the profile workflow.</figcaption>
         </figure>
 
         <p class="stamp mono"><span aria-hidden="true">&#128260;</span> <em>Auto-updated daily via GitHub Actions</em></p>

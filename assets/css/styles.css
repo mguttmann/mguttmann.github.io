@@ -85,7 +85,32 @@ code {
 }
 
 /* ===================== HERO (header + typing + social) ===================== */
-.hero { text-align: center; padding-bottom: clamp(28px, 6vw, 56px); }
+.hero {
+  position: relative;
+  text-align: center;
+  padding: clamp(30px, 6vw, 58px) 0 clamp(28px, 6vw, 56px);
+  overflow: hidden;
+  isolation: isolate;
+}
+/* Animated bronze contribution snake as the hero backdrop (decorative). */
+.hero-snake {
+  position: absolute;
+  left: 50%; top: 47%;
+  transform: translate(-50%, -50%);
+  width: min(120%, 1180px); max-width: none; height: auto;
+  opacity: .62; z-index: 0; pointer-events: none; user-select: none;
+}
+/* Scrim: darken behind the wordmark for contrast, fade to the edges so the
+   snake stays visible around it, and blend the band into the canvas. */
+.hero-scrim {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(58% 62% at 50% 47%, rgba(14,14,19,.74), rgba(14,14,19,.34) 58%, rgba(14,14,19,0) 100%),
+    linear-gradient(180deg, rgba(14,14,19,.5) 0%, rgba(14,14,19,0) 24%, rgba(14,14,19,0) 76%, var(--canvas) 100%);
+}
+/* All hero content sits above the snake + scrim. */
+.hero > *:not(.hero-snake):not(.hero-scrim) { position: relative; z-index: 2; }
+@media (prefers-reduced-motion: reduce) { .hero-snake { opacity: .32; } }
 
 .seal {
   width: 64px; height: 64px; margin: 0 auto 26px;
@@ -111,6 +136,7 @@ code {
   background: linear-gradient(180deg, #FBF7EF 0%, #E7DECF 60%, #C9BCA6 100%);
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 18px rgba(0,0,0,.55));
 }
 
 .tagline {
