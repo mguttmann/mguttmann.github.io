@@ -87,8 +87,12 @@ code {
 /* ===================== HERO (header + typing + social) ===================== */
 .hero {
   position: relative;
+  /* Full-bleed banner: break out of the centred .wrap column to span the whole
+     page width, and pull up flush to the top (cancel the .wrap top padding). */
+  width: 100vw; left: 50%; right: 50%;
+  margin: calc(-1 * clamp(40px, 8vw, 84px)) -50vw 0;
   text-align: center;
-  padding: clamp(30px, 6vw, 58px) 0 clamp(28px, 6vw, 56px);
+  padding: clamp(48px, 7vw, 92px) clamp(20px, 5vw, 40px) clamp(40px, 6vw, 64px);
   overflow: hidden;
   isolation: isolate;
 }
@@ -97,8 +101,8 @@ code {
   position: absolute;
   left: 50%; top: 47%;
   transform: translate(-50%, -50%);
-  width: min(120%, 1180px); max-width: none; height: auto;
-  opacity: .62; z-index: 0; pointer-events: none; user-select: none;
+  width: min(100%, 1500px); max-width: none; height: auto;
+  opacity: .6; z-index: 0; pointer-events: none; user-select: none;
 }
 /* Scrim: darken behind the wordmark for contrast, fade to the edges so the
    snake stays visible around it, and blend the band into the canvas. */
