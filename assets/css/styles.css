@@ -160,7 +160,9 @@ code {
 .social {
   display: flex; flex-wrap: wrap; gap: 10px;
   justify-content: center; align-items: center;
-  margin: 0 0 20px;
+  /* Extra top gap so the snake's progress bar runs in the band BETWEEN the
+     typing line and the buttons, not across them. */
+  margin: clamp(34px, 5vw, 54px) 0 18px;
 }
 .pill {
   display: inline-flex; align-items: center; gap: 8px;
