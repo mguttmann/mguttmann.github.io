@@ -296,32 +296,52 @@
   });
 
   /* ----------------------------------------------------------------------
-     Live pin sync: pull the owner's CURRENT pinned repos from the same
-     pins.json the profile README publishes (kept fresh daily by that repo's
-     featured-from-pins Action), then re-render the Pinned grid + Repositories
-     list. PUBLIC data only; graceful - on any failure the fallback list stays.
+     Live data sync: the profile repo's nightly featured-from-pins Action
+     publishes two contracts to its `output` branch -
+       repos.json -> ALL current public repos (the Repositories tab)
+       pins.json  -> the pinned subset            (the Pinned grid)
+     We read both, build the project list (pinned first, in pin order), and
+     re-render. PUBLIC data only; graceful - on any failure the hardcoded
+     fallback list stays. No token needed in this repo.
      ---------------------------------------------------------------------- */
   function syncPinsLive() {
     if (!window.fetch) return;
-    fetch("https://raw.githubusercontent.com/mguttmann/mguttmann/output/pins.json", { cache: "no-cache" })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (data) {
-        if (!data || !data.length) return;
-        var live = data.map(function (p) {
+    var base = "https://raw.githubusercontent.com/mguttmann/mguttmann/output/";
+    var getJSON = function (file) {
+      return fetch(base + file, { cache: "no-cache" })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .catch(function () { return null; });
+    };
+    Promise.all([getJSON("repos.json"), getJSON("pins.json")]).then(function (res) {
+      var repos = res[0], pins = res[1];
+      var pinName = {}, pinPos = {};
+      if (pins && pins.length) pins.forEach(function (p, i) { pinName[p.name] = true; pinPos[p.name] = i; });
+
+      if (repos && repos.length) {
+        var mapped = repos.map(function (r) {
           return {
-            name: p.name, language: p.language || null, url: p.url,
-            desc: p.description || "", pinned: true,
-            fork: !!p.isFork, stars: p.stars || 0
+            name: r.name, language: r.language || null, url: r.url,
+            desc: r.description || "", stars: r.stars || 0,
+            fork: !!r.isFork, pinned: !!pinName[r.name]
           };
         });
-        var extras = projects.filter(function (p) { return !p.pinned; });
-        projects = live.concat(extras);
-        safe("relistPinned", renderPinned);
-        safe("relistRepos", function () { renderPills(); renderRepos(); });
-        var count = $("#repo-count");
-        if (count) count.textContent = String(projects.length);
-      })
-      .catch(function () { /* keep the fallback list */ });
+        var pinned = [], rest = [];
+        mapped.forEach(function (m) { (m.pinned ? pinned : rest).push(m); });
+        pinned.sort(function (a, b) { return (pinPos[a.name] || 0) - (pinPos[b.name] || 0); });
+        projects = pinned.concat(rest);
+      } else if (pins && pins.length) {
+        projects = pins.map(function (p) {
+          return { name: p.name, language: p.language || null, url: p.url, desc: p.description || "", pinned: true, fork: !!p.isFork, stars: p.stars || 0 };
+        }).concat(projects.filter(function (p) { return !p.pinned; }));
+      } else {
+        return; // both failed -> keep the hardcoded fallback
+      }
+
+      safe("relistPinned", renderPinned);
+      safe("relistRepos", function () { renderPills(); renderRepos(); });
+      var count = $("#repo-count");
+      if (count) count.textContent = String(projects.length);
+    });
   }
 
   /* ----------------------------------------------------------------------
