@@ -72,22 +72,10 @@
       topics: ["mcp", "hetzner", "typescript", "automation"]
     },
     {
-      name: "the-real-snipeit-mcp", language: "TypeScript", pinned: true,
-      url: "https://github.com/mguttmann/the-real-snipeit-mcp",
-      desc: "MCP server for the Snipe-IT REST API — 100% coverage (hand-wrappers + codegen).",
-      topics: ["mcp", "snipe-it", "typescript", "itam"]
-    },
-    {
       name: "the-real-bitwarden-mcp", language: "TypeScript", pinned: true,
       url: "https://github.com/mguttmann/the-real-bitwarden-mcp",
       desc: "Local stdio MCP server for Bitwarden (Public API + Secrets Manager): 50+ admin tools for members, groups, collections, policies, licensing, projects and secrets.",
       topics: ["mcp", "bitwarden", "typescript", "security"]
-    },
-    {
-      name: "the-real-unifi-mcp", language: "TypeScript", pinned: true,
-      url: "https://github.com/mguttmann/the-real-unifi-mcp",
-      desc: "MCP server (stdio) for the UniFi Site Manager + Network APIs — 167 tools (86 hand-wrappers + 80 generated + a raw-request escape hatch).",
-      topics: ["mcp", "unifi", "typescript", "networking"]
     },
     {
       name: "opencode", language: "TypeScript",

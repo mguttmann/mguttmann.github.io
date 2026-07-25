@@ -2,25 +2,31 @@
    Manuel Guttmann - Portfolio - styles.css
    Pure CSS. No build step. Works from file:// and any static server.
 
-   Aesthetic direction: PURE GITHUB PROFILE (final owner-approved look).
-   Built from the Claude-Design handoff template (project/site.css). White
-   GitHub canvas, GitHub inks, a dark sticky GitHub app-bar, JetBrains Mono
-   accent font, a spinning avatar ring, "+ Follow"/"Sponsor" buttons, sidebar
-   bio + status badge, and profile tabs (Overview / Repositories / Stack).
-
-   Accent is MONOCHROME (the owner's final "schwarz ohne blau" decision):
-   --accent #1f2328, grayscale contribution graph. The orange tab underline
-   (--orange) stays as GitHub's signature.
+   Aesthetic direction: EXECUTIVE DARK LUXURY in a GitHub-profile layout
+   (final owner-approved look, relaunched 2026-06-14).
+   Midnight canvas #0E0E13, inset #14141B, copper accent #C8A06A, champagne
+   #D9B583, off-white ink #ECE7DF - the same palette as the profile README so
+   both surfaces read as one brand. GitHub-profile furniture is kept: dark
+   sticky app-bar, JetBrains Mono accent font, spinning avatar ring, sidebar
+   bio, and profile tabs (Overview / Repositories / Stack).
 
    Asset paths in the HTML are RELATIVE (no leading slash) so the site works
    BOTH as a user site (root /) AND as project pages (sub-path /repo/).
 
-   prefers-reduced-motion is honoured at the end of this file: the avatar-ring
-   spin, the wave, the blinking cursor and all reveal transitions are disabled.
+   prefers-reduced-motion is honoured at the end of this file for everything the
+   page itself animates: the avatar-ring spin, the wave, the blinking cursor and
+   all reveal transitions are disabled.
+   KNOWN GAP: the two remote SVGs (snake, activity composite) are embedded via
+   <img>, so they render in an isolated document that this file's selectors
+   cannot reach - their internal CSS keyframes and SMIL <animate> elements keep
+   running. Fixing that needs the reduced-motion rule baked INTO the generated
+   SVG (snake) and a non-animated variant selected via <picture> (composite);
+   both live in the profile repo's workflows. Do not claim full coverage here
+   until that ships.
    ========================================================================== */
 
 :root {
-  /* --- GitHub light canvas + inks (from template site.css) --- */
+  /* --- Midnight canvas + off-white inks --- */
   --canvas: #0e0e13;
   --inset: #14141b;
   --ink: #ece7df;
@@ -28,11 +34,11 @@
   --line: #2a2a33;
   --line-soft: #1e1e26;
 
-  /* --- Monochrome accent (owner final: "schwarz ohne blau") --- */
+  /* --- Copper / champagne accent (Executive Dark Luxury) --- */
   --accent: #c8a06a;
   --accent-dim: #8a6d45;
   --accent-bright: #d9b583;
-  --orange: #c8a06a;            /* GitHub-signature tab underline (kept) */
+  --orange: #c8a06a;            /* tab underline - copper, not GitHub orange */
 
   /* --- dark app header (authentic GitHub) --- */
   --header: #14141b;
@@ -277,11 +283,14 @@ input:focus-visible,
 }
 .achv .lbl { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
 .achv .row { display: flex; gap: 8px; }
+/* Badges are anchors to the GitHub achievements tab (claim -> source), so they
+   need pointer + no underline; the emoji must not inherit the link colour. */
 .achv .b {
   width: 42px; height: 42px; border-radius: 50%;
   display: grid; place-items: center; font-size: 19px;
   border: 1px solid var(--line); background: var(--inset);
-  transition: .2s; cursor: default;
+  transition: .2s; cursor: pointer;
+  text-decoration: none; color: inherit;
 }
 .achv .b:hover { transform: translateY(-3px) scale(1.06); box-shadow: 0 8px 16px -8px rgba(0,0,0,.25); }
 
@@ -535,7 +544,10 @@ input:focus-visible,
   flex: 1; min-width: 200px; border: 1px solid var(--line); border-radius: 7px;
   padding: 7px 12px; font-size: 14px; font-family: inherit; color: var(--ink); background: var(--canvas);
 }
-.repofilter input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(31,35,40,.15); }
+/* No outline:none here - the replacement shadow was a leftover from the light
+   pre-relaunch theme (a dark, 85%-transparent shadow on a dark canvas is
+   invisible). The global :focus-visible ring (bronze, 7.97:1) now applies. */
+.repofilter input:focus { border-color: var(--accent); }
 .langpills { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 4px; }
 .lp {
   font-size: 13px; border: 1px solid var(--line); background: var(--canvas);
@@ -543,7 +555,9 @@ input:focus-visible,
   font-family: inherit; color: var(--ink); display: flex; align-items: center; gap: 6px;
 }
 .lp:hover { border-color: var(--accent); color: var(--accent); }
-.lp.on { background: var(--accent); color: #fff; border-color: var(--accent-dim); }
+/* Ink on the bronze fill, not white: #fff on #C8A06A is 2.42:1 and fails WCAG AA
+   for both normal text (4.5) and UI text (3.0). Canvas ink gives 7.97:1. */
+.lp.on { background: var(--accent); color: var(--canvas); border-color: var(--accent-dim); }
 .lp i { width: 10px; height: 10px; border-radius: 50%; display: block; }
 .repolist { border-top: 1px solid var(--line-soft); margin-top: 14px; }
 .rrow {

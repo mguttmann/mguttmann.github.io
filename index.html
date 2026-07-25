@@ -9,12 +9,12 @@
     Manuel Guttmann - Portfolio (static GitHub Pages site)
     Pure HTML/CSS/JS. No build step. Works from file:// and any static server.
 
-    Aesthetic direction: PURE GITHUB PROFILE.
-    Recreated from the Claude-Design handoff template (_design-bundle). A white
-    GitHub canvas with GitHub inks, a dark sticky GitHub app-bar, JetBrains Mono
-    accent font, a spinning avatar ring, "+ Follow"/"Sponsor" buttons, a sidebar
-    with bio + status badge, and profile tabs (Overview / Repositories / Stack).
-    Monochrome accent (#1f2328) per the owner's final "schwarz ohne blau" call.
+    Aesthetic direction: EXECUTIVE DARK LUXURY, in a GitHub-profile layout.
+    Midnight canvas #0E0E13, copper accent #C8A06A, champagne #D9B583, off-white
+    ink #ECE7DF - the same palette as the profile README, so both surfaces read
+    as one brand. GitHub-profile furniture is kept (dark app-bar, JetBrains Mono
+    accent font, spinning avatar ring, sidebar with bio, profile tabs
+    Overview / Repositories / Stack).
 
     EN-primary (<html lang="en">); DE is fully translated and toggled in the
     header. The toggle flips <html lang>.
@@ -25,12 +25,12 @@
     The _design-bundle/ folder is SOURCE ONLY - it is NOT part of the deployed
     site and must be excluded from the deploy (see DEPLOY.md).
 
-    UNVERIFIED FACTS are NOT invented. The owner-confirmed real data (bio,
-    job title, pronouns, LinkedIn, journaway URL) is now in place; the earlier
-    visible data-todo placeholders are gone. The few remaining unknowns are
-    marked only as HTML comments starting with TODO[owner] (final domain,
-    optional Twitter/X handle, JSON-LD profile image). Search this file for
-    "TODO[owner]" to find every one.
+    UNVERIFIED FACTS are NOT invented. Every claim on this page is either
+    owner-confirmed or checkable at its source: the achievement badges are the
+    exact four GitHub awarded (each links to the achievements tab), and the
+    project data comes from the profile repo's `output` branch. There are no
+    open TODO[owner] markers left - the domain is final, the JSON-LD image is
+    the live avatar, and no X/Twitter handle exists to claim.
     ============================================================================
   -->
 
@@ -40,7 +40,7 @@
   <meta name="theme-color" content="#0E0E13" />
   <meta name="color-scheme" content="dark" />
 
-  <!-- Canonical: placeholder domain. TODO[owner]: confirm final domain. -->
+  <!-- Canonical: mguttmann.github.io is the final domain. -->
   <link rel="canonical" href="https://mguttmann.github.io/" />
 
   <!-- Open Graph -->
@@ -50,10 +50,12 @@
   <meta property="og:description" content="IT engineer securing and automating Microsoft 365 and Azure. Builder of MCP servers and Claude Code tooling." />
   <meta property="og:url" content="https://mguttmann.github.io/" />
   <meta property="og:site_name" content="Manuel Guttmann" />
-  <!-- Relative OG image (1200x630 PNG, monochrome GitHub-look card with the
-       real illustrated avatar + name + job title) so it resolves under both
-       the user-site root and a project-pages sub-path. -->
-  <meta property="og:image" content="assets/img/og-image.png" />
+  <!-- OG image MUST be an absolute URL. Social crawlers (LinkedIn, Slack, X)
+       fetch it from their own host and do NOT resolve relative paths against the
+       page URL - a relative value makes the share card render with no image at
+       all. 1200x630 PNG, well under LinkedIn's 1 MB limit. -->
+  <meta property="og:image" content="https://mguttmann.github.io/assets/img/og-image.png" />
+  <meta property="og:image:secure_url" content="https://mguttmann.github.io/assets/img/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:image:type" content="image/png" />
@@ -63,9 +65,8 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Manuel Guttmann - Microsoft Cloud, Security &amp; Automation" />
   <meta name="twitter:description" content="IT engineer securing and automating Microsoft 365 and Azure. Builder of MCP servers and Claude Code tooling." />
-  <meta name="twitter:image" content="assets/img/og-image.png" />
+  <meta name="twitter:image" content="https://mguttmann.github.io/assets/img/og-image.png" />
   <meta name="twitter:image:alt" content="Manuel Guttmann, IT systems administrator - portrait with name and title" />
-  <!-- TODO[owner]: add Twitter/X handle if desired: <meta name="twitter:creator" content="@handle"> -->
 
   <!-- Favicon: SVG primary, tiny ICO fallback (relative paths). -->
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
@@ -97,10 +98,14 @@
   {
     "@context": "https://schema.org",
     "@type": "Person",
+    "@id": "https://mguttmann.github.io/#person",
     "name": "Manuel Guttmann",
     "url": "https://mguttmann.github.io/",
+    "image": "https://mguttmann.github.io/assets/img/avatar.jpg",
+    "description": "IT systems administrator with 24+ years in IT, securing and automating Microsoft 365 and Azure environments and building MCP servers and Claude tooling as open source.",
     "email": "mailto:manuelguttmann@icloud.com",
     "jobTitle": "IT systems administrator",
+    "knowsLanguage": ["de", "en"],
     "worksFor": {
       "@type": "Organization",
       "name": "journaway",
@@ -130,11 +135,6 @@
     ]
   }
   </script>
-  <!--
-    TODO[owner]: when a profile photo exists, extend the JSON-LD above with:
-      "image": "assets/img/<photo>".
-    Do NOT add it until confirmed - it must not be fabricated.
-  -->
 </head>
 
 <body>
@@ -191,13 +191,18 @@
         <div><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146Zm4.943 12.248V6.169H2.542v7.225h2.401Zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.521-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016Zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4Z"/></svg><a href="https://www.linkedin.com/in/manuel-guttmann/" target="_blank" rel="noopener noreferrer" aria-label="Manuel Guttmann on LinkedIn (opens in a new tab)">in/manuel-guttmann</a></div>
       </div>
 
+      <!-- Achievements: EXACTLY the four badges GitHub actually awarded, verified
+           against github.com/mguttmann?tab=achievements. Hand-maintained, because
+           achievements are not exposed by the REST or GraphQL API. Anything not on
+           that tab does NOT belong here - the block links straight to it, so a
+           reader is one click from the source. -->
       <div class="achv">
         <div class="lbl" data-i18n="side.achievements">Achievements</div>
         <div class="row">
-          <span class="b" title="Pull Shark" aria-label="Pull Shark">&#129416;</span>
-          <span class="b" title="Galaxy Brain" aria-label="Galaxy Brain">&#129504;</span>
-          <span class="b" title="Quickdraw" aria-label="Quickdraw">&#9889;</span>
-          <span class="b" title="Starstruck" aria-label="Starstruck">&#127775;</span>
+          <a class="b" href="https://github.com/mguttmann?tab=achievements" target="_blank" rel="noopener noreferrer" title="Pull Shark" aria-label="Pull Shark (view on GitHub, opens in a new tab)">&#129416;</a>
+          <a class="b" href="https://github.com/mguttmann?tab=achievements" target="_blank" rel="noopener noreferrer" title="Pair Extraordinaire" aria-label="Pair Extraordinaire (view on GitHub, opens in a new tab)">&#129309;</a>
+          <a class="b" href="https://github.com/mguttmann?tab=achievements" target="_blank" rel="noopener noreferrer" title="Quickdraw" aria-label="Quickdraw (view on GitHub, opens in a new tab)">&#9889;</a>
+          <a class="b" href="https://github.com/mguttmann?tab=achievements" target="_blank" rel="noopener noreferrer" title="YOLO" aria-label="YOLO (view on GitHub, opens in a new tab)">&#127880;</a>
         </div>
       </div>
     </aside>
@@ -211,7 +216,7 @@
         </button>
         <button class="tab" type="button" data-panel="repos">
           <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8Z"/></svg>
-          <span data-i18n="nav.repos">Repositories</span><span class="count" id="repo-count">2</span>
+          <span data-i18n="nav.repos">Repositories</span><span class="count" id="repo-count">11</span>
         </button>
         <button class="tab" type="button" data-panel="stack">
           <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M7.998 14.5c2.832 0 5-1.98 5-4.5 0-1.463-.68-2.19-1.879-3.383l-.036-.038c-1.013-1.008-2.3-2.29-2.834-4.434-.322.256-.63.579-.864.953-.432.696-.621 1.58-.046 2.73.473.947.67 2.111-.052 3.054-.477.625-1.229.991-2.165 1.124-.832.118-1.498.348-1.95.733A1.7 1.7 0 0 0 2.5 12.5c0 1.21 1.083 2 2.498 2Z"/></svg>
@@ -243,7 +248,7 @@
         </article>
 
         <div class="reveal">
-          <div class="stitle"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 1.75C4 .784 4.784 0 5.75 0h5.5C12.216 0 13 .784 13 1.75v11.5a.75.75 0 0 1-1.218.586L8.5 11.21l-3.282 2.626A.75.75 0 0 1 4 13.25Z"/></svg><span data-i18n="overview.pinned">Pinned</span><span class="more mono">// Highlights</span></div>
+          <h2 class="stitle"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 1.75C4 .784 4.784 0 5.75 0h5.5C12.216 0 13 .784 13 1.75v11.5a.75.75 0 0 1-1.218.586L8.5 11.21l-3.282 2.626A.75.75 0 0 1 4 13.25Z"/></svg><span data-i18n="overview.pinned">Pinned</span><span class="more mono">// Highlights</span></h2>
           <div class="pingrid" id="pingrid"></div>
         </div>
 
@@ -255,15 +260,15 @@
           (the SAME activity-composite.svg the profile README uses). Auto-updated
           daily from the profile repo's `output` branch - no site redeploy. The
           old github_dark summary cards (blue/green) were removed; they clashed
-          with the bronze theme and duplicated this single, on-brand visual.
+          and duplicated this single, on-brand visual.
           ====================================================================
         -->
         <div class="reveal">
-          <div class="stitle"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M1.5 1.75V13.5h13.75a.75.75 0 0 1 0 1.5H.75a.75.75 0 0 1-.75-.75V1.75a.75.75 0 0 1 1.5 0Zm14.28 2.53-5.25 5.25a.75.75 0 0 1-1.06 0L7 7.06 4.28 9.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.25-3.25a.75.75 0 0 1 1.06 0L10 7.94l4.72-4.72a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042Z"/></svg><span data-i18n="overview.stats">Activity &amp; languages</span><span class="more mono" data-i18n="overview.stats.note">// auto-updated daily</span></div>
+          <h2 class="stitle"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M1.5 1.75V13.5h13.75a.75.75 0 0 1 0 1.5H.75a.75.75 0 0 1-.75-.75V1.75a.75.75 0 0 1 1.5 0Zm14.28 2.53-5.25 5.25a.75.75 0 0 1-1.06 0L7 7.06 4.28 9.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.25-3.25a.75.75 0 0 1 1.06 0L10 7.94l4.72-4.72a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042Z"/></svg><span data-i18n="overview.stats">Activity &amp; languages</span><span class="more mono" data-i18n="overview.stats.note">// auto-updated daily</span></h2>
           <figure class="dark-embed stat-wide">
             <img class="live-img"
                  src="https://raw.githubusercontent.com/mguttmann/mguttmann/output/profile-3d-contrib/activity-composite.svg"
-                 alt="3D isometric calendar of Manuel Guttmann's GitHub contributions with a bronze language-breakdown donut - updated automatically every day."
+                 alt="3D isometric calendar of Manuel Guttmann's GitHub contributions with a language-breakdown donut in per-language colours - updated automatically every day."
                  loading="lazy"
                  onerror="this.onerror=null;this.style.display='none';var p=this.parentNode.querySelector('.live-fallback');if(p)p.hidden=false;" />
             <figcaption class="live-fallback live-fallback--dark" hidden>
@@ -273,7 +278,7 @@
         </div>
 
         <div class="reveal contactblk">
-          <div class="stitle"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M1.643 3.143.427 1.927A.25.25 0 0 0 0 2.104V5.75c0 .138.112.25.25.25h3.646a.25.25 0 0 0 .177-.427L2.715 4.215a6.5 6.5 0 1 1-1.18 4.458.75.75 0 1 0-1.493.154 8.001 8.001 0 1 0 1.6-5.684Z"/></svg><span data-i18n="overview.contact">Contact</span></div>
+          <h2 class="stitle"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M1.643 3.143.427 1.927A.25.25 0 0 0 0 2.104V5.75c0 .138.112.25.25.25h3.646a.25.25 0 0 0 .177-.427L2.715 4.215a6.5 6.5 0 1 1-1.18 4.458.75.75 0 1 0-1.493.154 8.001 8.001 0 1 0 1.6-5.684Z"/></svg><span data-i18n="overview.contact">Contact</span></h2>
           <div class="contactrow">
             <a class="contactcard" href="https://github.com/mguttmann" target="_blank" rel="noopener noreferrer" aria-label="Manuel Guttmann on GitHub (opens in a new tab)">
               <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
@@ -309,7 +314,7 @@
 
       <!-- STACK -->
       <section class="panel" id="panel-stack" aria-label="Stack">
-        <div class="stitle"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8.878.392a1.75 1.75 0 0 0-1.756 0l-5.25 3.045A1.75 1.75 0 0 0 1 4.951v6.098c0 .624.332 1.2.872 1.514l5.25 3.045a1.75 1.75 0 0 0 1.756 0l5.25-3.045c.54-.313.872-.89.872-1.514V4.951c0-.624-.332-1.2-.872-1.514ZM7.875 1.69a.25.25 0 0 1 .25 0l4.63 2.685L8 7.133 3.245 4.375Z"/></svg><span data-i18n="stack.title">Tools &amp; Stack</span></div>
+        <h2 class="stitle"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8.878.392a1.75 1.75 0 0 0-1.756 0l-5.25 3.045A1.75 1.75 0 0 0 1 4.951v6.098c0 .624.332 1.2.872 1.514l5.25 3.045a1.75 1.75 0 0 0 1.756 0l5.25-3.045c.54-.313.872-.89.872-1.514V4.951c0-.624-.332-1.2-.872-1.514ZM7.875 1.69a.25.25 0 0 1 .25 0l4.63 2.685L8 7.133 3.245 4.375Z"/></svg><span data-i18n="stack.title">Tools &amp; Stack</span></h2>
         <div class="stack" id="stackgrid"></div>
       </section>
     </div>
