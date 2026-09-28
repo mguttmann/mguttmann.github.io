@@ -17,6 +17,13 @@ repository gets no scheduled job with write access to the landing page. The
 script runs only when someone runs it by hand, and its result is reviewed and
 committed like any other change.
 
+What does run automatically is a read-only reminder in the profile
+repository: `.github/workflows/site-snapshot-watch.yml` in mguttmann/mguttmann
+checks out this repository once a day and runs `tools/refresh-prerender.py
+--check`. When the static copy no longer matches the published contracts, that
+run turns red and names the fix (run the script here and commit). It writes
+nothing to this repository.
+
 Requirements: Python 3, standard library only. No build step, no dependency.
 
 Note: GitHub Pages serves every committed file of this repository, this
