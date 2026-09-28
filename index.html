@@ -75,65 +75,87 @@
   <link rel="icon" type="image/x-icon" sizes="16x16" href="favicon.ico" />
 
   <!--
-    Fonts via Google Fonts CDN. preconnect warms the connection; the system
-    fallback stack in styles.css (var(--mono)) means text always paints even if
-    the CDN is blocked. Documented in README.md (external dependency).
-      Accent / mono : JetBrains Mono (from the handoff template)
-      Body          : system UI stack (no webfont - fast, native GitHub feel)
+    Fonts are self-hosted, no third-party font request.
+      Accent / mono : JetBrains Mono, WOFF2 files in assets/fonts/ (latin and
+                      latin-ext), declared via @font-face in styles.css,
+                      licensed under the SIL Open Font License 1.1
+                      (assets/fonts/OFL.txt). If a file fails to load, the
+                      system fallback stack in var(--mono) paints the text.
+      Body          : system UI stack (no webfont)
   -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
+
+  <!-- When motion is allowed, main.js types the README sentence in. Hide the
+       pre-rendered sentence until main.js has cleared it, so it never flashes
+       in full first. Removed by main.js, or after 3 s if main.js has not run
+       yet; a late main.js then keeps the visible sentence instead of retyping.
+       The rule sits here, not in styles.css, so it applies from the first
+       style computation. The line keeps its height (.typ min-height). -->
+  <style>.typing-pending #typetarget { visibility: hidden; }</style>
+  <script>(function(d){try{if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;d.classList.add("typing-pending");setTimeout(function(){d.classList.remove("typing-pending");},3000);}catch(e){}})(document.documentElement);</script>
 
   <!-- Stylesheet (relative path) -->
   <link rel="stylesheet" href="assets/css/styles.css" />
 
   <!--
-    JSON-LD Person schema. The owner has publicly set company = journaway and
-    location = Ostrhauderfehn, so worksFor + address are included. jobTitle is
-    owner-confirmed ("IT systems administrator"); worksFor.url and the LinkedIn
-    URL in sameAs are owner-confirmed too. image remains TODO (omitted) until
-    confirmed. The employer/location decision is mirrored by the central
-    EMPLOYER config in assets/js/main.js.
+    JSON-LD, hand-written: a ProfilePage whose mainEntity is the Person. The
+    owner has publicly set company = journaway and location = Ostrhauderfehn,
+    so worksFor + address are included; jobTitle, worksFor.url and the LinkedIn
+    URL in sameAs are owner-confirmed. The employer/location decision is
+    mirrored by the central EMPLOYER config in assets/js/main.js. The
+    repository entities are a separate, generated ItemList at the end of
+    <body> (tools/refresh-prerender.py).
   -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "Person",
-    "@id": "https://mguttmann.github.io/#person",
-    "name": "Manuel Guttmann",
-    "url": "https://mguttmann.github.io/",
-    "image": "https://mguttmann.github.io/assets/img/avatar.jpg",
-    "description": "IT systems administrator with 24+ years in IT, securing and automating Microsoft 365 and Azure environments and building MCP servers and Claude tooling as open source.",
-    "email": "mailto:manuelguttmann@icloud.com",
-    "jobTitle": "IT systems administrator",
-    "knowsLanguage": ["de", "en"],
-    "worksFor": {
-      "@type": "Organization",
-      "name": "journaway",
-      "url": "https://www.journaway.com"
-    },
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": "Ostrhauderfehn",
-      "addressCountry": "DE"
-    },
-    "sameAs": [
-      "https://github.com/mguttmann",
-      "https://www.linkedin.com/in/manuel-guttmann/"
-    ],
-    "knowsAbout": [
-      "Microsoft 365",
-      "Microsoft Azure",
-      "Microsoft Entra ID",
-      "Microsoft Defender",
-      "Microsoft Intune",
-      "Identity and Access Management",
-      "IT Security",
-      "PowerShell",
-      "Model Context Protocol",
-      "Automation",
-      "Vendor and Contract Management"
+    "@graph": [
+      {
+        "@type": "ProfilePage",
+        "@id": "https://mguttmann.github.io/#profilepage",
+        "url": "https://mguttmann.github.io/",
+        "name": "Manuel Guttmann · mguttmann",
+        "inLanguage": "en",
+        "mainEntity": { "@id": "https://mguttmann.github.io/#person" }
+      },
+      {
+        "@type": "Person",
+        "@id": "https://mguttmann.github.io/#person",
+        "name": "Manuel Guttmann",
+        "url": "https://mguttmann.github.io/",
+        "image": "https://mguttmann.github.io/assets/img/avatar.jpg",
+        "description": "IT systems administrator with 24+ years in IT, securing and automating Microsoft 365 and Azure environments and building MCP servers and Claude tooling as open source.",
+        "email": "mailto:manuelguttmann@icloud.com",
+        "jobTitle": "IT systems administrator",
+        "knowsLanguage": ["de", "en"],
+        "worksFor": {
+          "@type": "Organization",
+          "name": "journaway",
+          "url": "https://www.journaway.com"
+        },
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Ostrhauderfehn",
+          "addressCountry": "DE"
+        },
+        "sameAs": [
+          "https://github.com/mguttmann",
+          "https://www.linkedin.com/in/manuel-guttmann/"
+        ],
+        "knowsAbout": [
+          "Microsoft 365",
+          "Microsoft Azure",
+          "Microsoft Entra ID",
+          "Microsoft Defender",
+          "Microsoft Intune",
+          "Identity and Access Management",
+          "IT Security",
+          "PowerShell",
+          "Model Context Protocol",
+          "Automation",
+          "Vendor and Contract Management"
+        ],
+        "mainEntityOfPage": { "@id": "https://mguttmann.github.io/#profilepage" }
+      }
     ]
   }
   </script>
@@ -176,7 +198,7 @@
       <div class="handle">mguttmann <span class="pronoun">&middot; he/him</span></div>
       <div class="role mono" data-i18n="side.role">IT systems administrator</div>
       <div class="statusbadge"><span aria-hidden="true">&#9881;&#65039;</span> <span data-i18n="side.status">automating things</span></div>
-      <p class="bio" data-i18n="side.bio">IT systems administrator. I automate infrastructure and build Claude skills, plugins &amp; AI agents &mdash; all open source.</p>
+      <p class="bio" data-i18n="side.bio">IT systems administrator. I automate infrastructure and build Claude skills, plugins &amp; AI agents, all open source.</p>
 
       <div class="btnrow">
         <a href="https://github.com/mguttmann" target="_blank" rel="noopener noreferrer" class="followbtn">+ <span data-i18n="side.follow">Follow</span></a>
@@ -218,7 +240,7 @@
         </button>
         <button class="tab" type="button" data-panel="repos">
           <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8Z"/></svg>
-          <span data-i18n="nav.repos">Repositories</span><span class="count" id="repo-count">11</span>
+          <span data-i18n="nav.repos">Repositories</span><span class="count" id="repo-count">15</span>
         </button>
         <button class="tab" type="button" data-panel="stack">
           <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M7.998 14.5c2.832 0 5-1.98 5-4.5 0-1.463-.68-2.19-1.879-3.383l-.036-.038c-1.013-1.008-2.3-2.29-2.834-4.434-.322.256-.63.579-.864.953-.432.696-.621 1.58-.046 2.73.473.947.67 2.111-.052 3.054-.477.625-1.229.991-2.165 1.124-.832.118-1.498.348-1.95.733A1.7 1.7 0 0 0 2.5 12.5c0 1.21 1.083 2 2.498 2Z"/></svg>
@@ -238,7 +260,7 @@
                  onerror="this.onerror=null;this.style.display='none';" />
             <div class="readme-scrim" aria-hidden="true"></div>
             <h2><span data-i18n="readme.hi">Hi, I'm Manuel</span> <span class="wave" aria-hidden="true">&#128075;</span></h2>
-            <p class="typ" id="typetarget" data-i18n-typed="readme.typed" data-text="$ Sysadmin by day, automator always. I turn recurring tasks into code — Claude skills, plugins, runbooks and AI agents you can use right away. I share it all as open source."></p>
+            <p class="typ" id="typetarget" data-i18n-typed="readme.typed" data-text="$ Sysadmin by day, automator always. I turn recurring tasks into code: Claude skills, plugins, runbooks and AI agents you can use right away. I share it all as open source.">$ Sysadmin by day, automator always. I turn recurring tasks into code: Claude skills, plugins, runbooks and AI agents you can use right away. I share it all as open source.</p>
             <div class="badges">
               <span class="badge">Azure<span class="l">cloud</span></span>
               <span class="badge">Microsoft 365<span class="l">m365</span></span>
@@ -251,7 +273,14 @@
 
         <div class="reveal">
           <h2 class="stitle"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 1.75C4 .784 4.784 0 5.75 0h5.5C12.216 0 13 .784 13 1.75v11.5a.75.75 0 0 1-1.218.586L8.5 11.21l-3.282 2.626A.75.75 0 0 1 4 13.25Z"/></svg><span data-i18n="overview.pinned">Pinned</span><span class="more mono">// Highlights</span></h2>
-          <div class="pingrid" id="pingrid"></div>
+          <!-- GENERATED REGIONS (this one and the prerender:* regions below):
+               written by tools/refresh-prerender.py from the profile repo's
+               pins.json / repos.json, see tools/REFRESH.md. Do not edit by
+               hand; main.js reads this markup back as its starting data. -->
+          <!-- prerender:pinned:start -->
+          <p class="sr-only" id="snapshot-note" lang="en">Project list captured from GitHub on <time datetime="2026-09-28">2026-09-28</time>. With JavaScript enabled, this page tries to load the current list.</p>
+          <div class="pingrid" id="pingrid"><div class="pin"><div class="pin-top"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8Z"></path></svg><a class="name" href="https://github.com/mguttmann/claude-team-hierarchy" target="_blank" rel="noopener noreferrer" aria-label="View the claude-team-hierarchy repository on GitHub (opens in a new tab)">claude-team-hierarchy</a><span class="vis">Public</span></div><p>Claude Code plugin: nested 5-level team-lead orchestration (CEO delegates only, opus-only dispatch, author != reviewer, mandatory memory). Ships a skill, subagents, a /team-start command and an opus-enforcement hook.</p><div class="pin-meta"><span class="lang"><i aria-hidden="true" style="background: rgb(137, 224, 81);"></i>Shell</span></div></div><div class="pin"><div class="pin-top"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8Z"></path></svg><a class="name" href="https://github.com/mguttmann/code-audit-suite" target="_blank" rel="noopener noreferrer" aria-label="View the code-audit-suite repository on GitHub (opens in a new tab)">code-audit-suite</a><span class="vis">Public</span></div><p>Local Docker-based code-quality &amp; security tool chain as Claude Code skills: one orchestrator drives a codebase to zero (quality, security, licensing, and that it compiles/builds).</p><div class="pin-meta"><span class="lang"><i aria-hidden="true" style="background: rgb(137, 224, 81);"></i>Shell</span></div></div><div class="pin"><div class="pin-top"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8Z"></path></svg><a class="name" href="https://github.com/mguttmann/the-real-hetzner-mcp" target="_blank" rel="noopener noreferrer" aria-label="View the the-real-hetzner-mcp repository on GitHub (opens in a new tab)">the-real-hetzner-mcp</a><span class="vis">Public</span></div><p>Local MCP server (stdio) exposing the entire Hetzner Cloud API as 201 typed tools, read and write</p><div class="pin-meta"><span class="lang"><i aria-hidden="true" style="background: rgb(49, 120, 198);"></i>TypeScript</span></div></div><div class="pin"><div class="pin-top"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8Z"></path></svg><a class="name" href="https://github.com/mguttmann/the-real-bitwarden-mcp" target="_blank" rel="noopener noreferrer" aria-label="View the the-real-bitwarden-mcp repository on GitHub (opens in a new tab)">the-real-bitwarden-mcp</a><span class="vis">Public</span></div><p>Local stdio MCP server for Bitwarden (Public API + Secrets Manager). 50+ admin tools for members, groups, collections, policies, licensing, projects, and secrets. For Claude Desktop / Claude Code.</p><div class="pin-meta"><span class="lang"><i aria-hidden="true" style="background: rgb(49, 120, 198);"></i>TypeScript</span></div></div></div>
+          <!-- prerender:pinned:end -->
         </div>
 
 
@@ -295,7 +324,7 @@
               <span><b>LinkedIn</b> <span class="sub">in/manuel-guttmann</span></span>
             </a>
           </div>
-          <p class="bio" style="margin-top:14px" data-i18n="overview.closing">No pitch decks, no buzzword bingo &mdash; just a straight answer to a real problem.</p>
+          <p class="bio" style="margin-top:14px" data-i18n="overview.closing">No pitch decks, no buzzword bingo: just a straight answer to a real problem.</p>
         </div>
       </section>
 
@@ -305,8 +334,12 @@
           <label class="sr-only" for="repoSearch" data-i18n="repos.search.label">Find a repository</label>
           <input id="repoSearch" type="text" data-i18n-placeholder="repos.search" placeholder="Find a repository&hellip;" />
         </div>
+        <!-- Language pills are built by main.js only: without JavaScript they
+             would be buttons that do nothing. -->
         <div class="langpills" id="langpills" role="group" aria-label="Filter by language"></div>
-        <div class="repolist" id="repolist"></div>
+        <!-- prerender:repos:start -->
+        <div class="repolist" id="repolist"><div class="rrow"><div class="l"><h3><a href="https://github.com/mguttmann/claude-team-hierarchy" target="_blank" rel="noopener noreferrer" aria-label="View the claude-team-hierarchy repository on GitHub (opens in a new tab)">claude-team-hierarchy</a><span class="vis">Public</span></h3><p>Claude Code plugin: nested 5-level team-lead orchestration (CEO delegates only, opus-only dispatch, author != reviewer, mandatory memory). Ships a skill, subagents, a /team-start command and an opus-enforcement hook.</p><div class="rm"><span class="lang"><i aria-hidden="true" style="background: rgb(137, 224, 81);"></i>Shell</span><span>Updated on GitHub</span></div></div><div class="r"><a class="starbtn" href="https://github.com/mguttmann/claude-team-hierarchy" target="_blank" rel="noopener noreferrer" aria-label="Star the claude-team-hierarchy repository on GitHub (opens in a new tab)"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>Star</a></div></div><div class="rrow"><div class="l"><h3><a href="https://github.com/mguttmann/code-audit-suite" target="_blank" rel="noopener noreferrer" aria-label="View the code-audit-suite repository on GitHub (opens in a new tab)">code-audit-suite</a><span class="vis">Public</span></h3><p>Local Docker-based code-quality &amp; security tool chain as Claude Code skills: one orchestrator drives a codebase to zero (quality, security, licensing, and that it compiles/builds).</p><div class="rm"><span class="lang"><i aria-hidden="true" style="background: rgb(137, 224, 81);"></i>Shell</span><span>Updated on GitHub</span></div></div><div class="r"><a class="starbtn" href="https://github.com/mguttmann/code-audit-suite" target="_blank" rel="noopener noreferrer" aria-label="Star the code-audit-suite repository on GitHub (opens in a new tab)"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>Star</a></div></div><div class="rrow"><div class="l"><h3><a href="https://github.com/mguttmann/the-real-hetzner-mcp" target="_blank" rel="noopener noreferrer" aria-label="View the the-real-hetzner-mcp repository on GitHub (opens in a new tab)">the-real-hetzner-mcp</a><span class="vis">Public</span></h3><p>Local MCP server (stdio) exposing the entire Hetzner Cloud API as 201 typed tools, read and write</p><div class="rm"><span class="lang"><i aria-hidden="true" style="background: rgb(49, 120, 198);"></i>TypeScript</span><span>Updated on GitHub</span></div></div><div class="r"><a class="starbtn" href="https://github.com/mguttmann/the-real-hetzner-mcp" target="_blank" rel="noopener noreferrer" aria-label="Star the the-real-hetzner-mcp repository on GitHub (opens in a new tab)"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>Star</a></div></div><div class="rrow"><div class="l"><h3><a href="https://github.com/mguttmann/the-real-bitwarden-mcp" target="_blank" rel="noopener noreferrer" aria-label="View the the-real-bitwarden-mcp repository on GitHub (opens in a new tab)">the-real-bitwarden-mcp</a><span class="vis">Public</span></h3><p>Local stdio MCP server for Bitwarden (Public API + Secrets Manager). 50+ admin tools for members, groups, collections, policies, licensing, projects, and secrets. For Claude Desktop / Claude Code.</p><div class="rm"><span class="lang"><i aria-hidden="true" style="background: rgb(49, 120, 198);"></i>TypeScript</span><span>Updated on GitHub</span></div></div><div class="r"><a class="starbtn" href="https://github.com/mguttmann/the-real-bitwarden-mcp" target="_blank" rel="noopener noreferrer" aria-label="Star the the-real-bitwarden-mcp repository on GitHub (opens in a new tab)"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>Star</a></div></div><div class="rrow"><div class="l"><h3><a href="https://github.com/mguttmann/restwatt" target="_blank" rel="noopener noreferrer" aria-label="View the restwatt repository on GitHub (opens in a new tab)">restwatt</a><span class="vis">Public</span></h3><p>Native macOS menu bar app: battery draw in watts, adaptive time to empty and time to full, per-process energy, keep-awake and sync toggles. Swift, no dependencies.</p><div class="rm"><span class="lang"><i aria-hidden="true" style="background: rgb(154, 165, 176);"></i>Swift</span><span>Updated on GitHub</span></div></div><div class="r"><a class="starbtn" href="https://github.com/mguttmann/restwatt" target="_blank" rel="noopener noreferrer" aria-label="Star the restwatt repository on GitHub (opens in a new tab)"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>Star</a></div></div><div class="rrow"><div class="l"><h3><a href="https://github.com/mguttmann/VelaTerm" target="_blank" rel="noopener noreferrer" aria-label="View the VelaTerm repository on GitHub (opens in a new tab)">VelaTerm</a><span class="vis">Public</span><span class="fork">Fork</span></h3><p>The best terminal for AI Coding</p><div class="rm"><span class="lang"><i aria-hidden="true" style="background: rgb(154, 165, 176);"></i></span><span>Updated on GitHub</span></div></div><div class="r"><a class="starbtn" href="https://github.com/mguttmann/VelaTerm" target="_blank" rel="noopener noreferrer" aria-label="Star the VelaTerm repository on GitHub (opens in a new tab)"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>Star</a></div></div><div class="rrow"><div class="l"><h3><a href="https://github.com/mguttmann/typewhisper-mac" target="_blank" rel="noopener noreferrer" aria-label="View the typewhisper-mac repository on GitHub (opens in a new tab)">typewhisper-mac</a><span class="vis">Public</span><span class="fork">Fork</span></h3><p>Local speech-to-text for macOS  on-device AI, fully private, optional cloud</p><div class="rm"><span class="lang"><i aria-hidden="true" style="background: rgb(154, 165, 176);"></i></span><span>Updated on GitHub</span></div></div><div class="r"><a class="starbtn" href="https://github.com/mguttmann/typewhisper-mac" target="_blank" rel="noopener noreferrer" aria-label="Star the typewhisper-mac repository on GitHub (opens in a new tab)"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>Star</a></div></div><div class="rrow"><div class="l"><h3><a href="https://github.com/mguttmann/typewhisper-plugins" target="_blank" rel="noopener noreferrer" aria-label="View the typewhisper-plugins repository on GitHub (opens in a new tab)">typewhisper-plugins</a><span class="vis">Public</span></h3><p>Unofficial macOS TypeWhisper plugin: use a Claude Pro/Max subscription via OAuth as an LLM provider for dictation post-processing (no API key). Experimental / PoC.</p><div class="rm"><span class="lang"><i aria-hidden="true" style="background: rgb(154, 165, 176);"></i>Swift</span><span>Updated on GitHub</span></div></div><div class="r"><a class="starbtn" href="https://github.com/mguttmann/typewhisper-plugins" target="_blank" rel="noopener noreferrer" aria-label="Star the typewhisper-plugins repository on GitHub (opens in a new tab)"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>Star</a></div></div><div class="rrow"><div class="l"><h3><a href="https://github.com/mguttmann/linkedin-internal-api" target="_blank" rel="noopener noreferrer" aria-label="View the linkedin-internal-api repository on GitHub (opens in a new tab)">linkedin-internal-api</a><span class="vis">Public</span></h3><p>Reverse-engineered reference + MCP server for LinkedIn's internal web APIs (Voyager + SDUI). 130 endpoints, 26 MCP tools, browserless-first, honestly documented. Lets an AI assistant read &amp; write LinkedIn.</p><div class="rm"><span class="lang"><i aria-hidden="true" style="background: rgb(53, 114, 165);"></i>Python</span><span>Updated on GitHub</span></div></div><div class="r"><a class="starbtn" href="https://github.com/mguttmann/linkedin-internal-api" target="_blank" rel="noopener noreferrer" aria-label="Star the linkedin-internal-api repository on GitHub (opens in a new tab)"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>Star</a></div></div><div class="rrow"><div class="l"><h3><a href="https://github.com/mguttmann/shannon" target="_blank" rel="noopener noreferrer" aria-label="View the shannon repository on GitHub (opens in a new tab)">shannon</a><span class="vis">Public</span><span class="fork">Fork</span></h3><p>Shannon is an AI pentester for web applications and APIs. It analyzes your source code, identifies attack vectors, and executes real exploits to prove vulnerabilities before they reach production.</p><div class="rm"><span class="lang"><i aria-hidden="true" style="background: rgb(154, 165, 176);"></i></span><span>Updated on GitHub</span></div></div><div class="r"><a class="starbtn" href="https://github.com/mguttmann/shannon" target="_blank" rel="noopener noreferrer" aria-label="Star the shannon repository on GitHub (opens in a new tab)"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>Star</a></div></div><div class="rrow"><div class="l"><h3><a href="https://github.com/mguttmann/hermes-agent" target="_blank" rel="noopener noreferrer" aria-label="View the hermes-agent repository on GitHub (opens in a new tab)">hermes-agent</a><span class="vis">Public</span><span class="fork">Fork</span></h3><p>The agent that grows with you</p><div class="rm"><span class="lang"><i aria-hidden="true" style="background: rgb(53, 114, 165);"></i>Python</span><span>Updated on GitHub</span></div></div><div class="r"><a class="starbtn" href="https://github.com/mguttmann/hermes-agent" target="_blank" rel="noopener noreferrer" aria-label="Star the hermes-agent repository on GitHub (opens in a new tab)"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>Star</a></div></div><div class="rrow"><div class="l"><h3><a href="https://github.com/mguttmann/opencode" target="_blank" rel="noopener noreferrer" aria-label="View the opencode repository on GitHub (opens in a new tab)">opencode</a><span class="vis">Public</span><span class="fork">Fork</span></h3><p>The open source coding agent.</p><div class="rm"><span class="lang"><i aria-hidden="true" style="background: rgb(154, 165, 176);"></i></span><span>Updated on GitHub</span></div></div><div class="r"><a class="starbtn" href="https://github.com/mguttmann/opencode" target="_blank" rel="noopener noreferrer" aria-label="Star the opencode repository on GitHub (opens in a new tab)"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>Star</a></div></div><div class="rrow"><div class="l"><h3><a href="https://github.com/mguttmann/typewhisper-idea" target="_blank" rel="noopener noreferrer" aria-label="View the typewhisper-idea repository on GitHub (opens in a new tab)">typewhisper-idea</a><span class="vis">Public</span></h3><p>Use your Claude Pro/Max subscription instead of an API key for on-device LLM text post-processing in TypeWhisper (macOS). Unofficial; tokens stay in the Keychain.</p><div class="rm"><span class="lang"><i aria-hidden="true" style="background: rgb(154, 165, 176);"></i>Swift</span><span>Updated on GitHub</span></div></div><div class="r"><a class="starbtn" href="https://github.com/mguttmann/typewhisper-idea" target="_blank" rel="noopener noreferrer" aria-label="Star the typewhisper-idea repository on GitHub (opens in a new tab)"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>Star</a></div></div><div class="rrow"><div class="l"><h3><a href="https://github.com/mguttmann/prephlight" target="_blank" rel="noopener noreferrer" aria-label="View the prephlight repository on GitHub (opens in a new tab)">prephlight</a><span class="vis">Public</span></h3><p>Local PR self-review for OpenCode - runs a multi-pass LLM review of your staged diff before the PR ever leaves your machine.</p><div class="rm"><span class="lang"><i aria-hidden="true" style="background: rgb(49, 120, 198);"></i>TypeScript</span><span>Updated on GitHub</span></div></div><div class="r"><a class="starbtn" href="https://github.com/mguttmann/prephlight" target="_blank" rel="noopener noreferrer" aria-label="Star the prephlight repository on GitHub (opens in a new tab)"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>Star</a></div></div><div class="rrow"><div class="l"><h3><a href="https://github.com/mguttmann/opencode-sonarqube" target="_blank" rel="noopener noreferrer" aria-label="View the opencode-sonarqube repository on GitHub (opens in a new tab)">opencode-sonarqube</a><span class="vis">Public</span></h3><p>OpenCode plugin giving your AI coding agent a sonarqube tool with 15 actions: automatic idle-time analysis, quality-gate status injected into the system prompt, Clean-as-You-Code new-issue focus and security-hotspot review. 740 tests, on npm as opencode-sonarqube.</p><div class="rm"><span class="lang"><i aria-hidden="true" style="background: rgb(49, 120, 198);"></i>TypeScript</span><span>Updated on GitHub</span></div></div><div class="r"><a class="starbtn" href="https://github.com/mguttmann/opencode-sonarqube" target="_blank" rel="noopener noreferrer" aria-label="Star the opencode-sonarqube repository on GitHub (opens in a new tab)"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>Star</a></div></div></div>
+        <!-- prerender:repos:end -->
         <p class="bio" style="margin-top:20px">
           <a class="mono" href="https://github.com/mguttmann?tab=repositories" target="_blank" rel="noopener noreferrer">
             <span data-i18n="repos.all">See all repositories on GitHub</span> &rarr;
@@ -317,7 +350,9 @@
       <!-- STACK -->
       <section class="panel" id="panel-stack" aria-label="Stack">
         <h2 class="stitle"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8.878.392a1.75 1.75 0 0 0-1.756 0l-5.25 3.045A1.75 1.75 0 0 0 1 4.951v6.098c0 .624.332 1.2.872 1.514l5.25 3.045a1.75 1.75 0 0 0 1.756 0l5.25-3.045c.54-.313.872-.89.872-1.514V4.951c0-.624-.332-1.2-.872-1.514ZM7.875 1.69a.25.25 0 0 1 .25 0l4.63 2.685L8 7.133 3.245 4.375Z"/></svg><span data-i18n="stack.title">Tools &amp; Stack</span></h2>
-        <div class="stack" id="stackgrid"></div>
+        <!-- prerender:stack:start -->
+        <div class="stack" id="stackgrid"><div class="skblk"><h4>Microsoft 365 &amp; Identity</h4><div class="chips"><span>Microsoft 365</span><span>Entra ID</span><span>Conditional Access</span><span>MFA / passwordless</span><span>Exchange Online</span><span>SharePoint &amp; OneDrive</span><span>Microsoft Teams</span><span>Microsoft Purview</span></div></div><div class="skblk"><h4>Azure &amp; Cloud</h4><div class="chips"><span>Microsoft Azure</span><span>Azure RBAC</span><span>Microsoft Graph</span><span>Hetzner Cloud</span><span>Linux / self-hosting</span><span>Docker</span><span>Nginx / reverse proxy</span><span>REST &amp; webhooks</span></div></div><div class="skblk"><h4>Security &amp; Endpoint</h4><div class="chips"><span>Microsoft Defender XDR</span><span>Defender for Endpoint</span><span>Microsoft Intune</span><span>Device compliance</span><span>Attack Surface Reduction</span><span>BitLocker</span><span>Conditional Access</span><span>Secure Score</span></div></div><div class="skblk"><h4>Automation &amp; Scripting</h4><div class="chips"><span>PowerShell</span><span>Microsoft Graph API</span><span>Python</span><span>Bash</span><span>GitHub Actions</span><span>Workflow orchestration</span><span>Scheduled reporting</span><span>Webhooks / APIs</span></div></div><div class="skblk"><h4>AI &amp; Agents</h4><div class="chips"><span>Claude / Claude Code</span><span>Model Context Protocol (MCP)</span><span>MCP server design</span><span>AI agent orchestration</span><span>Claude skills &amp; plugins</span><span>Prompt engineering</span><span>Tool use / function calling</span></div></div><div class="skblk"><h4>Tooling &amp; Dev</h4><div class="chips"><span>TypeScript / Node.js</span><span>Git / GitHub</span><span>REST API design</span><span>JSON / SVG</span><span>Markdown</span><span>VS Code</span><span>GitHub Pages</span></div></div><div class="skblk"><h4>IT as a business function</h4><div class="chips"><span>Vendor management</span><span>Contract management</span><span>Licensing</span><span>Cost optimisation</span><span>IT service management</span><span>Documentation &amp; SOPs</span></div></div></div>
+        <!-- prerender:stack:end -->
       </section>
     </div>
   </div>
@@ -337,5 +372,170 @@
 
   <!-- App script (relative path) -->
   <script src="assets/js/main.js"></script>
+
+  <!-- prerender:projects-jsonld:start -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": "https://mguttmann.github.io/#projects",
+    "name": "Public repositories by Manuel Guttmann",
+    "description": "Snapshot captured on 2026-09-28 of Manuel Guttmann's own (non-fork) public GitHub repositories, as listed in the repos.json published by the profile repository mguttmann/mguttmann.",
+    "numberOfItems": 10,
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@type": "SoftwareSourceCode",
+          "@id": "https://github.com/mguttmann/claude-team-hierarchy",
+          "name": "claude-team-hierarchy",
+          "description": "Claude Code plugin: nested 5-level team-lead orchestration (CEO delegates only, opus-only dispatch, author != reviewer, mandatory memory). Ships a skill, subagents, a /team-start command and an opus-enforcement hook.",
+          "codeRepository": "https://github.com/mguttmann/claude-team-hierarchy",
+          "programmingLanguage": "Shell",
+          "author": {
+            "@id": "https://mguttmann.github.io/#person"
+          }
+        }
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "item": {
+          "@type": "SoftwareSourceCode",
+          "@id": "https://github.com/mguttmann/code-audit-suite",
+          "name": "code-audit-suite",
+          "description": "Local Docker-based code-quality & security tool chain as Claude Code skills: one orchestrator drives a codebase to zero (quality, security, licensing, and that it compiles/builds).",
+          "codeRepository": "https://github.com/mguttmann/code-audit-suite",
+          "programmingLanguage": "Shell",
+          "author": {
+            "@id": "https://mguttmann.github.io/#person"
+          }
+        }
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@type": "SoftwareSourceCode",
+          "@id": "https://github.com/mguttmann/the-real-hetzner-mcp",
+          "name": "the-real-hetzner-mcp",
+          "description": "Local MCP server (stdio) exposing the entire Hetzner Cloud API as 201 typed tools, read and write",
+          "codeRepository": "https://github.com/mguttmann/the-real-hetzner-mcp",
+          "programmingLanguage": "TypeScript",
+          "author": {
+            "@id": "https://mguttmann.github.io/#person"
+          }
+        }
+      },
+      {
+        "@type": "ListItem",
+        "position": 4,
+        "item": {
+          "@type": "SoftwareSourceCode",
+          "@id": "https://github.com/mguttmann/the-real-bitwarden-mcp",
+          "name": "the-real-bitwarden-mcp",
+          "description": "Local stdio MCP server for Bitwarden (Public API + Secrets Manager). 50+ admin tools for members, groups, collections, policies, licensing, projects, and secrets. For Claude Desktop / Claude Code.",
+          "codeRepository": "https://github.com/mguttmann/the-real-bitwarden-mcp",
+          "programmingLanguage": "TypeScript",
+          "author": {
+            "@id": "https://mguttmann.github.io/#person"
+          }
+        }
+      },
+      {
+        "@type": "ListItem",
+        "position": 5,
+        "item": {
+          "@type": "SoftwareSourceCode",
+          "@id": "https://github.com/mguttmann/restwatt",
+          "name": "restwatt",
+          "description": "Native macOS menu bar app: battery draw in watts, adaptive time to empty and time to full, per-process energy, keep-awake and sync toggles. Swift, no dependencies.",
+          "codeRepository": "https://github.com/mguttmann/restwatt",
+          "programmingLanguage": "Swift",
+          "author": {
+            "@id": "https://mguttmann.github.io/#person"
+          }
+        }
+      },
+      {
+        "@type": "ListItem",
+        "position": 6,
+        "item": {
+          "@type": "SoftwareSourceCode",
+          "@id": "https://github.com/mguttmann/typewhisper-plugins",
+          "name": "typewhisper-plugins",
+          "description": "Unofficial macOS TypeWhisper plugin: use a Claude Pro/Max subscription via OAuth as an LLM provider for dictation post-processing (no API key). Experimental / PoC.",
+          "codeRepository": "https://github.com/mguttmann/typewhisper-plugins",
+          "programmingLanguage": "Swift",
+          "author": {
+            "@id": "https://mguttmann.github.io/#person"
+          }
+        }
+      },
+      {
+        "@type": "ListItem",
+        "position": 7,
+        "item": {
+          "@type": "SoftwareSourceCode",
+          "@id": "https://github.com/mguttmann/linkedin-internal-api",
+          "name": "linkedin-internal-api",
+          "description": "Reverse-engineered reference + MCP server for LinkedIn's internal web APIs (Voyager + SDUI). 130 endpoints, 26 MCP tools, browserless-first, honestly documented. Lets an AI assistant read & write LinkedIn.",
+          "codeRepository": "https://github.com/mguttmann/linkedin-internal-api",
+          "programmingLanguage": "Python",
+          "author": {
+            "@id": "https://mguttmann.github.io/#person"
+          }
+        }
+      },
+      {
+        "@type": "ListItem",
+        "position": 8,
+        "item": {
+          "@type": "SoftwareSourceCode",
+          "@id": "https://github.com/mguttmann/typewhisper-idea",
+          "name": "typewhisper-idea",
+          "description": "Use your Claude Pro/Max subscription instead of an API key for on-device LLM text post-processing in TypeWhisper (macOS). Unofficial; tokens stay in the Keychain.",
+          "codeRepository": "https://github.com/mguttmann/typewhisper-idea",
+          "programmingLanguage": "Swift",
+          "author": {
+            "@id": "https://mguttmann.github.io/#person"
+          }
+        }
+      },
+      {
+        "@type": "ListItem",
+        "position": 9,
+        "item": {
+          "@type": "SoftwareSourceCode",
+          "@id": "https://github.com/mguttmann/prephlight",
+          "name": "prephlight",
+          "description": "Local PR self-review for OpenCode - runs a multi-pass LLM review of your staged diff before the PR ever leaves your machine.",
+          "codeRepository": "https://github.com/mguttmann/prephlight",
+          "programmingLanguage": "TypeScript",
+          "author": {
+            "@id": "https://mguttmann.github.io/#person"
+          }
+        }
+      },
+      {
+        "@type": "ListItem",
+        "position": 10,
+        "item": {
+          "@type": "SoftwareSourceCode",
+          "@id": "https://github.com/mguttmann/opencode-sonarqube",
+          "name": "opencode-sonarqube",
+          "description": "OpenCode plugin giving your AI coding agent a sonarqube tool with 15 actions: automatic idle-time analysis, quality-gate status injected into the system prompt, Clean-as-You-Code new-issue focus and security-hotspot review. 740 tests, on npm as opencode-sonarqube.",
+          "codeRepository": "https://github.com/mguttmann/opencode-sonarqube",
+          "programmingLanguage": "TypeScript",
+          "author": {
+            "@id": "https://mguttmann.github.io/#person"
+          }
+        }
+      }
+    ]
+  }
+  </script>
+  <!-- prerender:projects-jsonld:end -->
 </body>
 </html>

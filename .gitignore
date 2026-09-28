@@ -13,3 +13,7 @@ README.md
 *REPORT*.md
 *report*.json
 gitleaks-*.json
+
+# --- Python bytecode of the local tools (contains local paths, NEVER deploy) ---
+__pycache__/
+*.py[cod]

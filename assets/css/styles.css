@@ -25,6 +25,31 @@
    until that ships.
    ========================================================================== */
 
+/* JetBrains Mono, self-hosted (no request to a font CDN). Files are the
+   variable WOFF2 builds that Google Fonts serves for JetBrains Mono v24,
+   subsets latin and latin-ext, copied byte for byte:
+     jetbrains-mono-v24-latin.woff2      sha256 2c32b9b3ee358c119e210f6f5195f9bd34894d78a785ff2e95d60e718e400af4
+     jetbrains-mono-v24-latin-ext.woff2  sha256 9c38cb2d0d2d93c1ee6e21fa78db76f13ea7e15e15cc64214c7ca89b6aaa35c4
+   The weight axis is declared as 400 700, the range the page uses.
+   unicode-range values are the ones Google Fonts uses for these subsets.
+   License: SIL Open Font License 1.1, see assets/fonts/OFL.txt. */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('../fonts/jetbrains-mono-v24-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('../fonts/jetbrains-mono-v24-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 :root {
   /* --- Midnight canvas + off-white inks --- */
   --canvas: #0e0e13;
@@ -188,6 +213,8 @@ input:focus-visible,
   background: radial-gradient(125% 135% at 18% 50%, rgba(14,14,19,.9), rgba(14,14,19,.38) 54%, rgba(14,14,19,.04) 100%);
 }
 .readme-body > *:not(.readme-snake):not(.readme-scrim) { position: relative; z-index: 2; }
+/* Reduced motion dims the snake backdrop only; the snake keeps animating
+   inside its own SVG document, which this stylesheet cannot reach. */
 @media (prefers-reduced-motion: reduce) { .readme-snake { opacity: .57; } }
 
 .page {
@@ -634,8 +661,10 @@ footer { border-top: 1px solid var(--line); background: var(--inset); margin-top
 .reveal.armed { opacity: 0; transform: translateY(24px); transition: none; }
 
 /* ==========================================================================
-   prefers-reduced-motion: disable ALL motion (avatar spin, wave, cursor
-   blink, reveals, tab-ink slide, hover transforms). Content stays visible.
+   prefers-reduced-motion: disable all motion this document owns (avatar
+   spin, wave, cursor blink, reveals, tab-ink slide, hover transforms).
+   Content stays visible. The two <img>-embedded SVGs (snake, activity
+   composite) keep animating; see the file header.
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

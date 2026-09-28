@@ -7,21 +7,28 @@
    reveal.js). This script:
      - data-drives the Pinned + Repositories grids and the Stack panel,
        built with createElement/textContent (XSS-safe - never innerHTML
-       from data), from the curated 8-repo whitelist below
-     - runs the profile tabs (Overview / Repositories / Stack) + the sliding
-       orange tab-ink, the repo search + language-pill filter
+       from data). Data sources, in order: the pre-rendered markup in
+       index.html (written by tools/refresh-prerender.py) is read back as
+       the starting data, then the live pins.json / repos.json replace it
+       when both the fetch and the validation succeed. On any failure the
+       pre-rendered list stays complete.
+     - runs the profile tabs (Overview / Repositories / Stack) as an ARIA
+       tab pattern + the sliding tab-ink, the repo search + language-pill
+       filter
      - animates the counters, the typed README and the avatar pop - all gated
        behind a motion probe so content is never stuck hidden, and skipped
-       under prefers-reduced-motion. (The contribution graph is no longer
-       drawn in JS: it is now a real, auto-updated remote SVG embedded in
-       index.html - see the contribution/stats section there.)
+       under prefers-reduced-motion. Exception: the two remote SVGs embedded
+       via <img> (snake, activity composite) animate inside their own
+       documents, which neither this script nor the stylesheet can reach.
      - drives the EN/DE language toggle (EN-primary), which flips <html lang>
      - fills the employer/location spots from a SINGLE central EMPLOYER config
 
    Every init step runs inside safe(): if one feature throws (missing element,
    unsupported API) the others still run.
 
-   HOW TO ADD A PROJECT: add an object to the `projects` array below.
+   HOW TO ADD A PROJECT: make the repo public on GitHub; the profile repo
+   publishes it in repos.json. Then run tools/refresh-prerender.py so the
+   pre-rendered markup lists it too (see tools/REFRESH.md).
    HOW TO ADD A LANGUAGE STRING: add a key to I18N.de and I18N.en.
    ========================================================================== */
 (function () {
@@ -32,62 +39,16 @@
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   /* ======================================================================
-     1) PROJECTS DATA  --  add / edit / remove repos here.
-     -----------------------------------------------------------------------
-     BRAND-SAFETY (hard rule): only PUBLIC, presentable repos belong here.
-     NEVER add private / internal / journaway / archive / backup repos.
-
-     LIVE-FIX 2026-06: six repos that used to live here were verified PRIVATE
-     via `gh repo view --json visibility` (the four MCP-server repos plus two
-     browser-game repos). Private repos give visitors a 404 on every link, so
-     they were removed. Only confirmed-PUBLIC repos remain:
-       - claude-team-hierarchy : real original (isFork=false), pinned.
-       - opencode              : PUBLIC but isFork=true -> kept ONLY in the
-                                 Repositories list, honestly flagged as a Fork
-                                 (fork:true + note), NEVER pinned and never
-                                 passed off as an own original.
-     mguttmann / mguttmann.github.io are the profile/site repos themselves and
-     are deliberately NOT listed as showcase project cards.
+     1) PROJECTS DATA. Filled at start-up by hydrateFromMarkup() from the
+     pre-rendered markup in index.html, then replaced by syncPinsLive() with
+     the live data contracts when those load and validate. There is no
+     hard-coded project list: the pre-rendered snapshot is the fallback.
+     Entry shape: { name, url, desc, language, fork, pinned }.
      ====================================================================== */
-  /* FALLBACK data (used only if the live pins.json fetch fails). The pinned
-     entries are kept in sync at runtime by syncPinsLive() below, which reads the
-     same pins.json the profile README publishes. Public, non-fork repos only. */
-  var projects = [
-    {
-      name: "claude-team-hierarchy", language: "Shell", pinned: true,
-      url: "https://github.com/mguttmann/claude-team-hierarchy",
-      desc: "Claude Code plugin: nested 5-level team-lead orchestration (CEO delegates only, opus-only dispatch, author != reviewer, mandatory memory) — skill + subagents + /team-start command + opus-enforcement hook.",
-      topics: ["claude-code", "ai-agents", "orchestration", "automation"]
-    },
-    {
-      name: "code-audit-suite", language: "Shell", pinned: true,
-      url: "https://github.com/mguttmann/code-audit-suite",
-      desc: "Local Docker-based code-quality & security tool chain as Claude Code skills — one orchestrator drives a codebase to zero (quality, security, licensing, builds).",
-      topics: ["claude-code", "code-quality", "security", "docker"]
-    },
-    {
-      name: "the-real-hetzner-mcp", language: "TypeScript", pinned: true,
-      url: "https://github.com/mguttmann/the-real-hetzner-mcp",
-      desc: "Local MCP server (stdio) exposing the entire Hetzner Cloud API as 201 typed tools — read and write.",
-      topics: ["mcp", "hetzner", "typescript", "automation"]
-    },
-    {
-      name: "the-real-bitwarden-mcp", language: "TypeScript", pinned: true,
-      url: "https://github.com/mguttmann/the-real-bitwarden-mcp",
-      desc: "Local stdio MCP server for Bitwarden (Public API + Secrets Manager): 50+ admin tools for members, groups, collections, policies, licensing, projects and secrets.",
-      topics: ["mcp", "bitwarden", "typescript", "security"]
-    },
-    {
-      name: "opencode", language: "TypeScript",
-      url: "https://github.com/mguttmann/opencode",
-      desc: "Open-source coding agent I actively contribute to via pull requests — part of staying close to where AI-assisted development is heading.",
-      topics: ["open-source", "ai-agents", "typescript", "contribution"],
-      fork: true,
-      note: "Contribution / fork — upstream open-source project"
-    }
-  ];
+  var projects = [];
 
-  /* Language -> GitHub dot colour for the language badge (cosmetic). */
+  /* Language -> GitHub dot colour for the language badge (cosmetic).
+     Mirrored in tools/refresh-prerender.py. */
   var LANG_COLORS = {
     "TypeScript": "#3178c6",
     "JavaScript": "#f1e05a",
@@ -97,7 +58,8 @@
     "HCL": "#844FBA"
   };
 
-  /* Stack groups (mirrors CONTENT.md section 4 - credible keywords only). */
+  /* Stack groups (credible keywords only). Mirrored in
+     tools/refresh-prerender.py, keep both in sync. */
   var skills = [
     { key: "stack.g1", h: "Microsoft 365 & Identity", items: ["Microsoft 365", "Entra ID", "Conditional Access", "MFA / passwordless", "Exchange Online", "SharePoint & OneDrive", "Microsoft Teams", "Microsoft Purview"] },
     { key: "stack.g2", h: "Azure & Cloud",             items: ["Microsoft Azure", "Azure RBAC", "Microsoft Graph", "Hetzner Cloud", "Linux / self-hosting", "Docker", "Nginx / reverse proxy", "REST & webhooks"] },
@@ -121,12 +83,12 @@
       "nav.stack": "Stack",
       "side.status": "automating things",
       "side.role": "IT-Systemadministrator",
-      "side.bio": "IT-Systemadministrator. Ich automatisiere Infrastruktur und baue Claude-Skills, Plugins & AI-Agents — alles Open Source.",
+      "side.bio": "IT-Systemadministrator. Ich automatisiere Infrastruktur und baue Claude-Skills, Plugins & AI-Agents, alles Open Source.",
       "side.follow": "Follow",
       "side.focus": "Automation · Cloud · AI",
       "side.achievements": "Achievements",
       "readme.hi": "Hi, ich bin Manuel",
-      "readme.typed": "$ Sysadmin tagsüber, Automatisierer immer. Ich verwandle wiederkehrende Aufgaben in Code — Claude-Skills, Plugins, Runbooks und AI-Agents, die du direkt einsetzen kannst. Hier teile ich alles als Open Source.",
+      "readme.typed": "$ Sysadmin tagsüber, Automatisierer immer. Ich verwandle wiederkehrende Aufgaben in Code: Claude-Skills, Plugins, Runbooks und AI-Agents, die du direkt einsetzen kannst. Hier teile ich alles als Open Source.",
       "counters.years": "Jahre IT",
       "overview.pinned": "Pinned",
       "overview.morepublic": "Weitere öffentliche Projekte folgen.",
@@ -140,7 +102,7 @@
       "overview.less": "Weniger",
       "overview.more": "Mehr",
       "overview.contact": "Kontakt",
-      "overview.closing": "Keine Pitch-Decks, kein Buzzword-Bingo — eine ehrliche Antwort auf ein echtes Problem.",
+      "overview.closing": "Keine Pitch-Decks, kein Buzzword-Bingo: eine ehrliche Antwort auf ein echtes Problem.",
       "repos.search": "Repository suchen…",
       "repos.search.label": "Repository suchen",
       "repos.all": "Alle Repositories auf GitHub ansehen",
@@ -159,12 +121,12 @@
       "nav.stack": "Stack",
       "side.status": "automating things",
       "side.role": "IT systems administrator",
-      "side.bio": "IT systems administrator. I automate infrastructure and build Claude skills, plugins & AI agents — all open source.",
+      "side.bio": "IT systems administrator. I automate infrastructure and build Claude skills, plugins & AI agents, all open source.",
       "side.follow": "Follow",
       "side.focus": "Automation · Cloud · AI",
       "side.achievements": "Achievements",
       "readme.hi": "Hi, I'm Manuel",
-      "readme.typed": "$ Sysadmin by day, automator always. I turn recurring tasks into code — Claude skills, plugins, runbooks and AI agents you can use right away. I share it all as open source.",
+      "readme.typed": "$ Sysadmin by day, automator always. I turn recurring tasks into code: Claude skills, plugins, runbooks and AI agents you can use right away. I share it all as open source.",
       "counters.years": "Years in IT",
       "overview.pinned": "Pinned",
       "overview.morepublic": "More public projects coming soon.",
@@ -178,7 +140,7 @@
       "overview.less": "Less",
       "overview.more": "More",
       "overview.contact": "Contact",
-      "overview.closing": "No pitch decks, no buzzword bingo — just a straight answer to a real problem.",
+      "overview.closing": "No pitch decks, no buzzword bingo: just a straight answer to a real problem.",
       "repos.search": "Find a repository…",
       "repos.search.label": "Find a repository",
       "repos.all": "See all repositories on GitHub",
@@ -192,7 +154,8 @@
     }
   };
 
-  /* Stack group headings are translated separately (they are data-driven). */
+  /* Stack group headings are translated separately (they are data-driven).
+     The EN set is mirrored in tools/refresh-prerender.py. */
   var STACK_HEADINGS = {
     de: { "stack.g1": "Microsoft 365 & Identity", "stack.g2": "Azure & Cloud", "stack.g3": "Security & Endpoint", "stack.g4": "Automatisierung & Scripting", "stack.g5": "Tooling & Dev", "stack.g6": "IT als Business-Funktion" },
     en: { "stack.g1": "Microsoft 365 & Identity", "stack.g2": "Azure & Cloud", "stack.g3": "Security & Endpoint", "stack.g4": "Automation & Scripting", "stack.g5": "Tooling & Dev", "stack.g6": "IT as a business function" }
@@ -271,6 +234,7 @@
   }
 
   document.addEventListener("DOMContentLoaded", function () {
+    safe("hydrate", hydrateFromMarkup); // must run before anything renders
     safe("footerYear", setFooterYear);
     safe("applyLang", function () { applyLang("en"); }); // EN-primary first paint
     safe("renderPinned", renderPinned);
@@ -284,16 +248,100 @@
   });
 
   /* ----------------------------------------------------------------------
-     Live data sync: the profile repo's nightly featured-from-pins Action
-     publishes two contracts to its `output` branch -
-       repos.json -> ALL current public repos (the Repositories tab)
-       pins.json  -> the pinned subset            (the Pinned grid)
-     We read both, build the project list (pinned first, in pin order), and
-     re-render. PUBLIC data only; graceful - on any failure the hardcoded
-     fallback list stays. No token needed in this repo.
+     Third-party text (names, descriptions, languages from the data contracts)
+     is normalised before it enters `projects`: en dash and em dash become a
+     plain hyphen. The pattern is built from code points so the characters
+     never appear in this file. Mirrored in tools/refresh-prerender.py.
      ---------------------------------------------------------------------- */
+  var DASH_RE = new RegExp("[" + String.fromCharCode(0x2013, 0x2014) + "]", "g");
+  function normText(v) {
+    return typeof v === "string" ? v.replace(DASH_RE, "-") : "";
+  }
+
+  /* Same checks as tools/refresh-prerender.py: a repo name and an own-repo
+     https URL. Entries failing them are dropped (fail closed). */
+  var REPO_NAME_RE = /^[A-Za-z0-9._-]+$/;
+  var REPO_URL_RE = /^https:\/\/github\.com\/mguttmann\/[A-Za-z0-9._-]+$/;
+  function validEntry(e) {
+    return !!e && typeof e === "object" &&
+      typeof e.name === "string" && REPO_NAME_RE.test(e.name) &&
+      typeof e.url === "string" && REPO_URL_RE.test(e.url);
+  }
+  function validList(v) {
+    return Array.isArray(v) ? v.filter(validEntry) : [];
+  }
+
+  /* Text shown for a repo without a description (same string as S_NODESC
+     in tools/refresh-prerender.py). */
+  var S_NODESC = "Public repository on GitHub.";
+  function shownDesc(d) {
+    return (d && String(d).trim()) ? d : S_NODESC;
+  }
+
+  /* ----------------------------------------------------------------------
+     Hydration: read the pre-rendered markup (tools/refresh-prerender.py)
+     back into `projects`, so every later render (language switch, filter,
+     search, failed fetch) works on the complete snapshot and produces the
+     same markup. textContent / getAttribute only.
+     ---------------------------------------------------------------------- */
+  function hydrateFromMarkup() {
+    var pinned = Object.create(null);
+    $all("#pingrid .pin .name").forEach(function (n) { pinned[n.textContent] = true; });
+    var out = [];
+    $all("#repolist .rrow").forEach(function (row) {
+      var link = $(".l h3 a", row);
+      var nameNode = link || $(".l h3 span", row);
+      var descNode = $(".l p", row);
+      var langNode = $(".rm .lang", row);
+      if (!nameNode) return;
+      var name = nameNode.textContent;
+      out.push({
+        name: name,
+        url: link ? safeUrl(link.getAttribute("href")) : "",
+        // The pre-rendered placeholder stands for "no description" (as in
+        // the live data), so an unchanged repo compares equal after the fetch.
+        desc: descNode && descNode.textContent !== S_NODESC ? descNode.textContent : "",
+        language: (langNode && langNode.textContent) || null,
+        fork: !!$(".l h3 .fork", row),
+        pinned: !!pinned[name]
+      });
+    });
+    if (out.length) projects = out;
+  }
+
+  /* ----------------------------------------------------------------------
+     Live data sync: the profile repo publishes two contracts to its
+     `output` branch -
+       repos.json -> its public repos (the Repositories tab)
+       pins.json  -> the pinned subset   (the Pinned grid)
+     We read both, build the project list (pinned first, in pin order), and
+     re-render. PUBLIC data only, no token. Graceful: a failed, empty or
+     invalid response (not an array, no valid entry) replaces nothing, so
+     the pre-rendered snapshot stays complete. The dated snapshot note is
+     removed only when BOTH contracts replaced the snapshot.
+     ---------------------------------------------------------------------- */
+  function mapEntry(r, pinned) {
+    return {
+      name: normText(r.name), url: r.url,
+      desc: normText(r.description), language: normText(r.language) || null,
+      fork: r.isFork === true, pinned: pinned
+    };
+  }
+
+  /* Compares what the renderers show, so a difference that renders the
+     same (e.g. a blank vs. a missing description) causes no redraw. */
+  function sameProjects(a, b) {
+    if (a.length !== b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      var x = a[i], y = b[i];
+      if (x.name !== y.name || x.url !== y.url || shownDesc(x.desc) !== shownDesc(y.desc) ||
+          x.language !== y.language || x.fork !== y.fork || x.pinned !== y.pinned) return false;
+    }
+    return true;
+  }
+
   function syncPinsLive() {
-    if (!window.fetch) return;
+    if (!window.fetch || !window.Promise) return;
     var base = "https://raw.githubusercontent.com/mguttmann/mguttmann/output/";
     var getJSON = function (file) {
       return fetch(base + file, { cache: "no-cache" })
@@ -301,35 +349,62 @@
         .catch(function () { return null; });
     };
     Promise.all([getJSON("repos.json"), getJSON("pins.json")]).then(function (res) {
-      var repos = res[0], pins = res[1];
-      var pinName = {}, pinPos = {};
-      if (pins && pins.length) pins.forEach(function (p, i) { pinName[p.name] = true; pinPos[p.name] = i; });
+      var repos = validList(res[0]), pins = validList(res[1]);
+      var reposOk = repos.length > 0, pinsOk = pins.length > 0;
+      if (!reposOk && !pinsOk) return; // keep the snapshot
 
-      if (repos && repos.length) {
-        var mapped = repos.map(function (r) {
-          return {
-            name: r.name, language: r.language || null, url: r.url,
-            desc: r.description || "", stars: r.stars || 0,
-            fork: !!r.isFork, pinned: !!pinName[r.name]
-          };
-        });
-        var pinned = [], rest = [];
-        mapped.forEach(function (m) { (m.pinned ? pinned : rest).push(m); });
-        pinned.sort(function (a, b) { return (pinPos[a.name] || 0) - (pinPos[b.name] || 0); });
-        projects = pinned.concat(rest);
-      } else if (pins && pins.length) {
-        projects = pins.map(function (p) {
-          return { name: p.name, language: p.language || null, url: p.url, desc: p.description || "", pinned: true, fork: !!p.isFork, stars: p.stars || 0 };
-        }).concat(projects.filter(function (p) { return !p.pinned; }));
+      var pinPos = Object.create(null);
+      if (pinsOk) {
+        pins.forEach(function (p, i) { if (!(p.name in pinPos)) pinPos[p.name] = i; });
       } else {
-        return; // both failed -> keep the hardcoded fallback
+        // pins.json failed: keep the snapshot's pin selection and order
+        projects.filter(function (p) { return p.pinned; })
+          .forEach(function (p, i) { pinPos[p.name] = i; });
       }
 
+      var next;
+      if (reposOk) {
+        var pinned = [], rest = [];
+        repos.forEach(function (r) {
+          var m = mapEntry(r, r.name in pinPos);
+          (m.pinned ? pinned : rest).push(m);
+        });
+        pinned.sort(function (a, b) { return pinPos[a.name] - pinPos[b.name]; });
+        next = pinned.concat(rest);
+      } else {
+        // repos.json failed: live pins + the snapshot's remaining repos
+        var seen = Object.create(null);
+        next = [];
+        pins.forEach(function (p) {
+          if (seen[p.name]) return;
+          seen[p.name] = true;
+          next.push(mapEntry(p, true));
+        });
+        projects.forEach(function (p) {
+          if (!seen[p.name]) next.push({
+            name: p.name, url: p.url, desc: p.desc, language: p.language, fork: p.fork, pinned: false
+          });
+        });
+      }
+
+      if (reposOk && pinsOk) {
+        var note = $("#snapshot-note");
+        if (note && note.parentNode) note.parentNode.removeChild(note);
+      }
+      if (sameProjects(projects, next)) return; // identical: nothing to redraw
+
+      // Differing live data replaces the texts in place: no entrance
+      // animation, so rows that are already painted never drop to opacity 0.
+      projects = next;
       safe("relistPinned", renderPinned);
-      safe("relistRepos", function () { renderPills(); renderRepos(); });
-      var count = $("#repo-count");
-      if (count) count.textContent = String(projects.length);
+      safe("relistRepos", function () { renderPills(); renderRepos(false); });
+      setRepoCount();
     });
+  }
+
+  function setRepoCount() {
+    var count = $("#repo-count");
+    if (count && projects.length) count.textContent = String(projects.length);
   }
 
   /* ----------------------------------------------------------------------
@@ -366,8 +441,7 @@
       top.appendChild(el("span", "vis", "Public"));
       card.appendChild(top);
 
-      var desc = (p.desc && String(p.desc).trim()) ? p.desc : "Public repository on GitHub.";
-      card.appendChild(el("p", null, desc));
+      card.appendChild(el("p", null, shownDesc(p.desc)));
 
       var meta = el("div", "pin-meta");
       var lang = el("span", "lang");
@@ -453,7 +527,12 @@
     });
   }
 
-  function renderRepos() {
+  /* `animate`: only a change the visitor just made (filter, search,
+     language switch) plays the row entrance, and only with motion, as in
+     the baseline. The first render and the live-data sync swap the rows
+     without animation, so already painted rows never vanish and fade in
+     again on their own. */
+  function renderRepos(animate) {
     var list = $("#repolist");
     if (!list) return;
     var rows = projects.filter(function (p) {
@@ -473,7 +552,7 @@
     var frag = document.createDocumentFragment();
     rows.forEach(function (p, i) {
       var row = el("div", "rrow");
-      if (MOTION) {
+      if (animate === true && MOTION) {
         row.style.animation = "fadeUp .4s cubic-bezier(.2,.7,.2,1) both";
         row.style.animationDelay = (i * 45) + "ms";
       }
@@ -494,8 +573,7 @@
       if (p.fork) h3.appendChild(el("span", "fork", getString("repos.fork") || "Fork"));
       left.appendChild(h3);
 
-      var desc = (p.desc && String(p.desc).trim()) ? p.desc : "Public repository on GitHub.";
-      left.appendChild(el("p", null, desc));
+      left.appendChild(el("p", null, shownDesc(p.desc)));
 
       if (p.note) left.appendChild(el("p", "pin-note", p.note));
 
@@ -547,18 +625,17 @@
         if (!btn) return;
         activeLang = btn.getAttribute("data-lang");
         renderPills();
-        renderRepos();
+        renderRepos(true);
       });
     }
     var search = $("#repoSearch");
     if (search) {
       search.addEventListener("input", function (e) {
         query = String(e.target.value || "").toLowerCase().trim();
-        renderRepos();
+        renderRepos(true);
       });
     }
-    var count = $("#repo-count");
-    if (count) count.textContent = String(projects.length);
+    setRepoCount();
   }
 
   /* ----------------------------------------------------------------------
@@ -584,12 +661,44 @@
   }
 
   /* ----------------------------------------------------------------------
-     Tabs (Overview / Repositories / Stack) + sliding orange tab-ink.
+     Tabs (Overview / Repositories / Stack) + sliding tab-ink.
+     ARIA tab pattern (tablist / tab / tabpanel, aria-selected, roving
+     tabindex, Arrow / Home / End keys), set here and not in the HTML:
+     without JavaScript the tabs cannot switch, so the static markup must
+     not announce a tab widget. If any tab lacks its panel, no roles are set.
      ---------------------------------------------------------------------- */
   function initTabs() {
     var tabs = $all(".tab");
     var ink = $("#tabink");
     if (!tabs.length) return;
+
+    var nav = $("#tabs");
+    var aria = !!nav && tabs.every(function (t) {
+      return !!document.getElementById("panel-" + t.getAttribute("data-panel"));
+    });
+    if (aria) {
+      nav.setAttribute("role", "tablist");
+      tabs.forEach(function (t) {
+        var name = t.getAttribute("data-panel");
+        var panel = document.getElementById("panel-" + name);
+        t.id = "tab-" + name;
+        t.setAttribute("role", "tab");
+        t.setAttribute("aria-controls", panel.id);
+        panel.setAttribute("role", "tabpanel");
+        panel.setAttribute("aria-labelledby", t.id);
+        panel.removeAttribute("aria-label");
+      });
+    }
+
+    function syncTabState() {
+      if (!aria) return;
+      tabs.forEach(function (t) {
+        var on = t.classList.contains("active");
+        t.setAttribute("aria-selected", on ? "true" : "false");
+        t.setAttribute("tabindex", on ? "0" : "-1");
+      });
+    }
+    syncTabState();
 
     function moveInk(tab) {
       if (!ink || !tab) return;
@@ -599,6 +708,7 @@
 
     function showTab(name) {
       tabs.forEach(function (t) { t.classList.toggle("active", t.getAttribute("data-panel") === name); });
+      syncTabState();
       $all(".panel").forEach(function (p) {
         var on = p.id === "panel-" + name;
         p.classList.toggle("show", on);
@@ -608,10 +718,6 @@
           p.style.animation = "fadeUp .4s cubic-bezier(.2,.7,.2,1) both";
         }
       });
-      // mirror active state in the header nav
-      $all(".hnav a").forEach(function (a) {
-        a.classList.toggle("is-active", a.getAttribute("data-go") === name);
-      });
       var t = tabs.filter(function (t) { return t.getAttribute("data-panel") === name; })[0];
       if (t) moveInk(t);
       window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
@@ -620,6 +726,22 @@
     tabs.forEach(function (t) {
       t.addEventListener("click", function () { showTab(t.getAttribute("data-panel")); });
     });
+    if (aria) {
+      nav.addEventListener("keydown", function (e) {
+        if (e.altKey || e.ctrlKey || e.metaKey) return;
+        var i = tabs.indexOf(document.activeElement);
+        if (i < 0) return;
+        var j;
+        if (e.key === "ArrowRight") j = (i + 1) % tabs.length;
+        else if (e.key === "ArrowLeft") j = (i - 1 + tabs.length) % tabs.length;
+        else if (e.key === "Home") j = 0;
+        else if (e.key === "End") j = tabs.length - 1;
+        else return;
+        e.preventDefault();
+        showTab(tabs[j].getAttribute("data-panel"));
+        tabs[j].focus();
+      });
+    }
     $all("[data-go]").forEach(function (node) {
       node.addEventListener("click", function (e) {
         e.preventDefault();
@@ -655,7 +777,12 @@
     if (reduceMotion) return; // CSS already keeps .reveal visible
 
     function arm() {
-      var els = $all(".reveal");
+      // Only arm blocks that cannot have been painted yet: main.js runs at the
+      // end of <body>, so the browser may already have painted everything in
+      // (or above) the viewport, including the pre-rendered pins. Hiding such
+      // a block and fading it in again would be a visible flash. Blocks with
+      // no layout box (inactive tab panel) are left alone too.
+      var els = $all(".reveal").filter(function (node) { return !mayBePainted(node); });
       els.forEach(function (node, i) {
         node.classList.add("armed");
         node.style.transitionDelay = (Math.min(i % 6, 5) * 55) + "ms";
@@ -676,6 +803,17 @@
     }
 
     motionProbe(arm);
+  }
+
+  /* True unless the element lies entirely below the viewport with a real
+     layout box. Anything that is (or was, above the fold) on screen, and
+     anything without a box, counts as possibly painted and is never hidden
+     by an entrance effect. */
+  function mayBePainted(node) {
+    var r = node.getBoundingClientRect();
+    if (!r.width && !r.height) return true;
+    var h = window.innerHeight || 800;
+    return r.top < h;
   }
 
   /* Shared motion probe: only fire cb if CSS transitions are actually running
@@ -709,7 +847,9 @@
       // continuous spin transform); the portrait counter-rotates via CSS and
       // must keep its own animation untouched, so we do NOT style .avatar-lg.
       var ring = $(".avatar-ring");
-      if (ring) ring.style.animation = "avpop .7s ease both, spin 9s linear infinite";
+      // Skipped when the ring may already be painted (it sits above the fold),
+      // so the already visible avatar never blinks out and back in.
+      if (ring && !mayBePainted(ring)) ring.style.animation = "avpop .7s ease both, spin 9s linear infinite";
 
       // counter count-up (only numeric boxes; TODO pills are skipped)
       $all("[data-count]").forEach(function (node) {
@@ -737,8 +877,17 @@
     if (!tt) return;
     var txt = currentTypedText();
     var ci = 0;
+    // Type only while the pre-rendered sentence is still hidden by the <head>
+    // class. If it is already visible (the 3 s safety net in index.html fired,
+    // or the head script never ran), clearing and retyping it would be a
+    // visible flash: keep the sentence as it is.
+    if (!document.documentElement.classList.contains("typing-pending")) {
+      if (tt.textContent !== txt) tt.textContent = txt;
+      return;
+    }
     // textContent only for data; the cursor is a literal element we own.
     tt.textContent = "";
+    releaseTyped();
     var cur = document.createElement("span");
     cur.className = "cursor";
     tt.appendChild(cur);
@@ -762,7 +911,13 @@
     return (key && getString(key)) || (tt && tt.getAttribute("data-text")) || "";
   }
 
+  /* Drop the <head> class that hides the pre-rendered sentence (index.html). */
+  function releaseTyped() {
+    document.documentElement.classList.remove("typing-pending");
+  }
+
   function staticFallback() {
+    releaseTyped();
     $all("[data-count]").forEach(function (node) {
       if (node.textContent.trim() === "0" || node.textContent.trim() === "") {
         var t = parseInt(node.getAttribute("data-count"), 10);
@@ -789,7 +944,7 @@
      EN / DE language toggle. Swaps all [data-i18n] text + placeholders +
      <html lang>, re-renders the data-driven panels in the chosen language.
      ---------------------------------------------------------------------- */
-  function applyLang(lang) {
+  function applyLang(lang, userAction) {
     currentLang = (lang === "en") ? "en" : "de";
     document.documentElement.setAttribute("lang", currentLang);
 
@@ -805,7 +960,7 @@
     });
 
     // re-render data-driven, language-dependent panels
-    safe("relangRepos", function () { renderPills(); renderRepos(); });
+    safe("relangRepos", function () { renderPills(); renderRepos(userAction); });
     safe("relangStack", renderStack);
     safe("relangTyped", function () {
       var tt = $("#typetarget");
@@ -828,7 +983,7 @@
     var btn = $("#lang-toggle");
     if (!btn) return;
     btn.addEventListener("click", function () {
-      applyLang(currentLang === "de" ? "en" : "de");
+      applyLang(currentLang === "de" ? "en" : "de", true);
     });
   }
 
